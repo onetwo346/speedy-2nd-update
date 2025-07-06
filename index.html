@@ -3,98 +3,414 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Speedy Delivery Service - Agona Swedru</title>
+    <meta name="description" content="Fast delivery service in Agona Swedru, Central Region, Ghana. Order from local stores and track your delivery in real-time.">
+    <meta name="keywords" content="delivery, Agona Swedru, Ghana, fast delivery, local stores, mobile money">
+    <meta name="author" content="Speedy Delivery Service">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="Speedy Delivery Service - Agona Swedru">
+    <meta property="og:description" content="Fast delivery service in Agona Swedru, Central Region, Ghana">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://speedydelivery.com">
+    
+    <title>Speedy Delivery Service - Fast Delivery in Agona Swedru, Ghana</title>
+    
+    <!-- Preload critical resources -->
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" as="style">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" as="style">
+    
+    <!-- Stylesheets -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
     <link rel="stylesheet" href="styles.css">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚀</text></svg>">
 </head>
 <body>
+    <!-- Skip to content link for accessibility -->
+    <a href="#main-content" class="skip-link visually-hidden-focusable">Skip to main content</a>
+    
     <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top" role="navigation" aria-label="Main navigation">
         <div class="container">
-            <a class="navbar-brand" href="#"><i class="fas fa-rocket"></i> Speedy Delivery</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <a class="navbar-brand" href="#" aria-label="Speedy Delivery Home">
+                <i class="fas fa-rocket" aria-hidden="true"></i> 
+                <span class="brand-text">Speedy Delivery</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" 
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link" href="#stores">Stores</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#track">Track</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#support">Support</a></li>
+                    <li class="nav-item">
+                        <a class="nav-link smooth-scroll" href="#stores" aria-label="Browse stores">
+                            <i class="fas fa-store" aria-hidden="true"></i> Stores
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link smooth-scroll" href="#track" aria-label="Track your order">
+                            <i class="fas fa-map-marker-alt" aria-hidden="true"></i> Track
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link smooth-scroll" href="#support" aria-label="Get customer support">
+                            <i class="fas fa-phone" aria-hidden="true"></i> Support
+                        </a>
+                    </li>
                 </ul>
             </div>
         </div>
     </nav>
 
+    <!-- Main Content -->
+    <main id="main-content">
     <!-- Hero Section -->
-    <section class="hero text-center text-white">
+        <section class="hero text-center text-white" role="banner">
         <div class="container">
-            <h1 class="display-4 animate__animated animate__fadeIn">Fast Delivery in Agona Swedru</h1>
-            <p class="lead">Shop and track in real-time, serving Central Region, Ghana.</p>
-            <a href="#stores" class="btn btn-primary btn-lg mt-3">Start Shopping</a>
+                <h1 class="display-4 animate__animated animate__fadeInUp">
+                    <i class="fas fa-shipping-fast me-3" aria-hidden="true"></i>
+                    Fast Delivery in Agona Swedru
+                </h1>
+                <p class="lead animate__animated animate__fadeInUp animate__delay-1s">
+                    Shop from local stores and track your delivery in real-time across Central Region, Ghana
+                </p>
+                <div class="hero-buttons animate__animated animate__fadeInUp animate__delay-2s">
+                    <a href="#stores" class="btn btn-primary btn-lg me-3 smooth-scroll">
+                        <i class="fas fa-shopping-cart me-2" aria-hidden="true"></i>
+                        Start Shopping
+                    </a>
+                    <a href="#track" class="btn btn-outline-light btn-lg smooth-scroll">
+                        <i class="fas fa-search me-2" aria-hidden="true"></i>
+                        Track Order
+                    </a>
+                </div>
         </div>
     </section>
 
     <!-- Browse Stores -->
-    <section id="stores" class="container my-5">
-        <h2 class="text-center mb-4">Browse Stores in Agona Swedru</h2>
-        <p class="text-center text-muted">Delivery available only in Agona Swedru, Central Region, Ghana.</p>
-        <div class="row" id="store-list"></div>
+        <section id="stores" class="py-5">
+            <div class="container">
+                <div class="text-center mb-5">
+                    <h2 class="section-title">Browse Stores in Agona Swedru</h2>
+                    <p class="text-muted">Delivery available only in Agona Swedru, Central Region, Ghana</p>
+                    <div class="title-underline"></div>
+                </div>
+                
+                <!-- Loading State -->
+                <div id="stores-loading" class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading stores...</span>
+                    </div>
+                    <p class="mt-3 text-muted">Loading available stores...</p>
+                </div>
+                
+                <!-- Store Grid -->
+                <div class="row" id="store-list" style="display: none;"></div>
+            </div>
     </section>
 
     <!-- Order Form -->
-    <section id="order" class="container my-5">
-        <h2 class="text-center mb-4">Place Your Order</h2>
-        <form id="order-form" class="p-4 bg-light rounded shadow-sm">
-            <div class="mb-3">
-                <label for="store-select" class="form-label">Select Store</label>
-                <select class="form-select" id="store-select" required>
-                    <option value="" disabled selected>Choose a store</option>
-                </select>
+        <section id="order" class="py-5 modern-order-section">
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-lg-10">
+                        <div class="order-form-container">
+                            <div class="order-header text-center mb-4">
+                                <h2 class="order-title">
+                                    <i class="fas fa-shopping-bag me-3"></i>
+                                    Place Your Order
+                                </h2>
+                                <p class="order-subtitle">Quick delivery to your location in Agona Swedru</p>
+                            </div>
+                            
+                            <form id="order-form" class="modern-order-form">
+                                <!-- Customer Information Section -->
+                                <div class="form-section">
+                                    <div class="section-header">
+                                        <h4 class="section-title">
+                                            <i class="fas fa-user me-2"></i>
+                                            Customer Information
+                                        </h4>
+                                        <p class="section-description">Tell us who you are</p>
+                                    </div>
+                                    
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <div class="form-floating">
+                                                <input type="text" class="form-control" id="customer-name" 
+                                                       placeholder="Your full name" required>
+                                                <label for="customer-name">
+                                                    <i class="fas fa-user me-2"></i>
+                                                    Full Name <span class="text-danger">*</span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="col-md-6">
+                                            <div class="form-floating">
+                                                <input type="tel" class="form-control" id="customer-phone" 
+                                                       placeholder="Your phone number" required 
+                                                       pattern="[0-9\+\-\s\(\)]{10,15}">
+                                                <label for="customer-phone">
+                                                    <i class="fas fa-phone me-2"></i>
+                                                    Phone Number <span class="text-danger">*</span>
+                                                </label>
+                                            </div>
+                                            <div class="form-text">
+                                                <i class="fas fa-info-circle me-1"></i>
+                                                We'll use this to contact you about your order
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Store Selection Section -->
+                                <div class="form-section">
+                                    <div class="section-header">
+                                        <h4 class="section-title">
+                                            <i class="fas fa-store me-2"></i>
+                                            Store Selection
+                                        </h4>
+                                        <p class="section-description">Choose your preferred store</p>
+                                    </div>
+                                    
+                                    <div class="form-floating">
+                                        <select class="form-select" id="store-select" required>
+                                            <option value="" disabled selected>Choose a store</option>
+                                        </select>
+                                        <label for="store-select">
+                                            <i class="fas fa-store me-2"></i>
+                                            Select Store <span class="text-danger">*</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <!-- Items Section -->
+                                <div class="form-section">
+                                    <div class="section-header">
+                                        <h4 class="section-title">
+                                            <i class="fas fa-shopping-cart me-2"></i>
+                                            Shopping List
+                                        </h4>
+                                        <p class="section-description">What would you like to order?</p>
+                                    </div>
+                                    
+                                    <div class="form-floating">
+                                        <textarea class="form-control" id="items" rows="5" required 
+                                                  placeholder="List your items here..." 
+                                                  style="min-height: 120px;"></textarea>
+                                        <label for="items">
+                                            <i class="fas fa-list me-2"></i>
+                                            Items (one per line) <span class="text-danger">*</span>
+                                        </label>
+                                    </div>
+                                    <div class="form-text">
+                                        <i class="fas fa-lightbulb me-1"></i>
+                                        <strong>Example:</strong> Milk - 2 liters, Bread - 1 loaf, Rice - 5kg bag
+                                    </div>
+                                </div>
+                                
+                                <!-- Special Instructions Section -->
+                                <div class="form-section">
+                                    <div class="section-header">
+                                        <h4 class="section-title">
+                                            <i class="fas fa-comment-dots me-2"></i>
+                                            Special Instructions
+                                        </h4>
+                                        <p class="section-description">Any special requests? (Optional)</p>
+                                    </div>
+                                    
+                                    <div class="form-floating">
+                                        <textarea class="form-control" id="custom-request" rows="3" 
+                                                  placeholder="Any special instructions..."
+                                                  style="min-height: 80px;"></textarea>
+                                        <label for="custom-request">
+                                            <i class="fas fa-comment me-2"></i>
+                                            Special Instructions
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <!-- Preferences Section -->
+                                <div class="form-section">
+                                    <div class="section-header">
+                                        <h4 class="section-title">
+                                            <i class="fas fa-cog me-2"></i>
+                                            Preferences
+                                        </h4>
+                                        <p class="section-description">Additional options</p>
+                                    </div>
+                                    
+                                    <div class="form-check-container">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="eco-friendly">
+                                            <label class="form-check-label" for="eco-friendly">
+                                                <i class="fas fa-leaf me-2 text-success"></i>
+                                                Request Eco-Friendly Packaging
+                                                <small class="text-muted d-block">Help protect our environment</small>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Submit Button -->
+                                <div class="form-section">
+                                    <button type="submit" class="btn btn-primary btn-lg w-100 modern-submit-btn" id="submit-order-btn">
+                                        <i class="fas fa-credit-card me-2"></i>
+                                        Proceed to Payment
+                                        <i class="fas fa-arrow-right ms-2"></i>
+                                    </button>
+                                </div>
+                            </form>
+                        
+                            <!-- Payment Step -->
+                            <div id="payment-step" class="payment-container" style="display: none;">
+                                <div class="payment-header">
+                                    <h4 class="payment-title">
+                                        <i class="fas fa-mobile-alt me-2"></i>
+                                        Complete Your Payment
+                                    </h4>
+                                    <p class="payment-subtitle">Secure mobile money payment</p>
+                                </div>
+                                
+                                <div class="payment-card">
+                                    <div class="payment-info">
+                                        <div class="payment-item">
+                                            <div class="payment-label">
+                                                <i class="fas fa-phone me-2"></i>
+                                                Send Payment To
+                                            </div>
+                                            <div class="payment-value">+233 55 635 9890</div>
+                                        </div>
+                                        
+                                        <div class="payment-item">
+                                            <div class="payment-label">
+                                                <i class="fas fa-tag me-2"></i>
+                                                Reference Number
+                                            </div>
+                                            <div class="payment-value" id="payment-reference">SPD-XXXXX</div>
+                                        </div>
+                                        
+                                        <div class="payment-note">
+                                            <i class="fas fa-info-circle me-2"></i>
+                                            Include your reference number when making payment
+                                        </div>
+                                    </div>
+                                    
+                                    <button id="confirm-payment" class="btn btn-success btn-lg w-100 modern-confirm-btn">
+                                        <i class="fas fa-check-circle me-2"></i>
+                                        I've Made the Payment
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Order Result -->
+                            <div id="order-result" class="order-result-container"></div>
+                        </div>
+
+                    </div>
+                </div>
             </div>
-            <div class="mb-3">
-                <label for="items" class="form-label">Items (one per line)</label>
-                <textarea class="form-control" id="items" rows="3" required placeholder="e.g., Milk, Bread"></textarea>
-            </div>
-            <div class="mb-3">
-                <label for="custom-request" class="form-label">Custom Requests</label>
-                <textarea class="form-control" id="custom-request" rows="2" placeholder="e.g., Put in a bag"></textarea>
-            </div>
-            <div class="form-check mb-3">
-                <input class="form-check-input" type="checkbox" id="eco-friendly">
-                <label class="form-check-label" for="eco-friendly">Eco-Friendly Delivery</label>
-            </div>
-            <button type="submit" class="btn btn-primary w-100">Proceed to Payment</button>
-        </form>
-        <div id="payment-step" class="mt-4" style="display: none;">
-            <h4>Payment Options</h4>
-            <p>Pay via Mobile Money: Send to <strong>+233 55 635 9890</strong> with your reference number.</p>
-            <button id="confirm-payment" class="btn btn-success w-100">Confirm Payment</button>
-        </div>
-        <div id="order-result" class="mt-4"></div>
     </section>
 
     <!-- Track Order -->
-    <section id="track" class="container my-5">
-        <h2 class="text-center mb-4">Track Your Order</h2>
-        <div class="input-group mb-3 w-50 mx-auto">
-            <input type="text" class="form-control" id="track-input" placeholder="Enter Reference Number">
-            <button class="btn btn-outline-primary" id="track-btn">Track</button>
+        <section id="track" class="py-5">
+            <div class="container">
+                <div class="text-center mb-5">
+                    <h2 class="section-title">Track Your Order</h2>
+                    <p class="text-muted">Enter your reference number to see real-time delivery status</p>
+                    <div class="title-underline"></div>
+                </div>
+                
+                <div class="row justify-content-center">
+                    <div class="col-lg-6">
+                        <div class="input-group mb-4">
+                            <span class="input-group-text">
+                                <i class="fas fa-search" aria-hidden="true"></i>
+                            </span>
+                            <input type="text" class="form-control form-control-lg" 
+                                   id="track-input" placeholder="Enter Reference Number (e.g., SPD-ABC123XYZ)"
+                                   aria-label="Reference number">
+                            <button class="btn btn-outline-primary btn-lg" type="button" id="track-btn">
+                                <i class="fas fa-map-marker-alt me-2" aria-hidden="true"></i>
+                                Track Order
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row justify-content-center">
+                    <div class="col-lg-8">
+                        <div id="track-result"></div>
+                    </div>
+                </div>
         </div>
-        <div id="track-result" class="p-3 bg-light rounded shadow-sm"></div>
     </section>
 
     <!-- Customer Support -->
-    <section id="support" class="container my-5 text-center">
-        <h2 class="mb-4">Need Help?</h2>
-        <p>Call our dispatcher at <strong>+233 55 635 9890</strong> with your reference number.</p>
+        <section id="support" class="py-5 bg-light">
+            <div class="container text-center">
+                <h2 class="section-title mb-4">Need Help?</h2>
+                <div class="row justify-content-center">
+                    <div class="col-lg-6">
+                        <div class="support-card p-4 bg-white rounded shadow">
+                            <div class="mb-3">
+                                <i class="fas fa-headset fa-3x text-primary" aria-hidden="true"></i>
+                            </div>
+                            <h4>24/7 Customer Support</h4>
+                            <p class="text-muted mb-4">Our dispatchers are available to help you track your order</p>
+                            <div class="contact-info">
+                                <p class="mb-2">
+                                    <i class="fas fa-phone me-2 text-success" aria-hidden="true"></i>
+                                    <strong>Call:</strong> 
+                                    <a href="tel:+233556359890" class="text-decoration-none">+233 55 635 9890</a>
+                                </p>
+                                <p class="mb-0">
+                                    <i class="fas fa-envelope me-2 text-primary" aria-hidden="true"></i>
+                                    <strong>Email:</strong> 
+                                    <a href="mailto:cosmoscoderr@gmail.com" class="text-decoration-none">cosmoscoderr@gmail.com</a>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
     </section>
+    </main>
 
     <!-- Footer -->
-    <footer class="bg-dark text-white py-4 text-center">
-        <p>© 2025 Speedy Delivery Service. All rights reserved.</p>
+    <footer class="bg-dark text-white py-4">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6 text-center text-md-start">
+                    <p class="mb-0">© 2025 Speedy Delivery Service. All rights reserved.</p>
+                </div>
+                <div class="col-md-6 text-center text-md-end">
+                    <p class="mb-0">
+                        <i class="fas fa-map-marker-alt me-2" aria-hidden="true"></i>
+                        Serving Agona Swedru, Central Region, Ghana
+                    </p>
+                </div>
+            </div>
+        </div>
     </footer>
 
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay" style="display: none;">
+        <div class="loading-content">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-3">Processing your request...</p>
+        </div>
+    </div>
+
+    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="script.js"></script>
 </body>
