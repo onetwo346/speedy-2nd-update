@@ -1499,4 +1499,10 @@ const exportDataReport = () => {
             report.issues.push(`${ref}: Missing customer name`);
         }
         if (!order.customerPhone) {
-            report.issues.push(`
+            report.issues.push(`${ref}: Missing customer phone`);
+        }
+    });
+    
+    console.log("📋 Comprehensive data report generated successfully");
+    return report;
+};
