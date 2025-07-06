@@ -153,29 +153,79 @@ const triggerDriverPortalUpdate = () => {
             });
         }
         
-        // Method 3: Force storage event trigger with additional metadata
-        const storageEvent = new StorageEvent('storage', {
-            key: 'speedyDeliveryOrders',
-            newValue: localStorage.getItem('speedyDeliveryOrders'),
-            oldValue: null,
-            storageArea: localStorage,
-            url: window.location.href
+        // Method 3: Enhanced localStorage trigger with multiple keys
+        const updateData = {
+            timestamp: new Date().toISOString(),
+            orderCount: orders.size,
+            trigger: Math.random() // Force event to fire
+        };
+        
+        localStorage.setItem('speedyDeliveryLastUpdate', JSON.stringify(updateData));
+        localStorage.setItem('speedyDeliverySync', JSON.stringify(updateData));
+        
+        // Method 4: Multiple storage event triggers
+        setTimeout(() => {
+            localStorage.removeItem('speedyDeliverySync');
+            localStorage.setItem('speedyDeliverySync', JSON.stringify({
+                ...updateData,
+                trigger: Math.random()
+            }));
+        }, 100);
+        
+        // Method 5: Polling trigger for driver portal
+        localStorage.setItem('speedyDeliveryPollTrigger', Date.now().toString());
+        
+        // Method 6: Force cross-tab visibility using multiple methods
+        const crossTabData = {
+            action: 'ordersUpdated',
+            timestamp: new Date().toISOString(),
+            orderCount: orders.size,
+            random: Math.random()
+        };
+        
+        // Try multiple localStorage keys
+        const keys = [
+            'speedyDeliveryXTab1',
+            'speedyDeliveryXTab2', 
+            'speedyDeliveryXTab3'
+        ];
+        
+        keys.forEach((key, index) => {
+            setTimeout(() => {
+                localStorage.setItem(key, JSON.stringify(crossTabData));
+                setTimeout(() => {
+                    localStorage.removeItem(key);
+                }, 200);
+            }, index * 50);
         });
-        window.dispatchEvent(storageEvent);
         
-        // Method 4: Update a timestamp key to trigger storage listeners
-        localStorage.setItem('speedyDeliveryLastUpdate', Date.now().toString());
-        
-        // Method 5: Use MessageChannel for iframe communication (if needed)
-        if (window.parent !== window) {
-            window.parent.postMessage({
-                type: 'speedyDeliveryUpdate',
-                timestamp: new Date().toISOString(),
-                orderCount: orders.size
-            }, '*');
+        // Method 7: Use IndexedDB for more reliable storage
+        if (typeof indexedDB !== 'undefined') {
+            try {
+                const request = indexedDB.open('speedyDeliveryDB', 1);
+                request.onupgradeneeded = function(event) {
+                    const db = event.target.result;
+                    if (!db.objectStoreNames.contains('orders')) {
+                        db.createObjectStore('orders', { keyPath: 'id' });
+                    }
+                };
+                request.onsuccess = function(event) {
+                    const db = event.target.result;
+                    const transaction = db.transaction(['orders'], 'readwrite');
+                    const store = transaction.objectStore('orders');
+                    store.put({
+                        id: 'lastUpdate',
+                        timestamp: new Date().toISOString(),
+                        orderCount: orders.size
+                    });
+                };
+            } catch (error) {
+                console.log("IndexedDB not available:", error);
+            }
         }
         
-        console.log("📡 All driver portal update methods triggered successfully");
+        console.log("✅ All synchronization methods triggered");
+        
     } catch (error) {
         console.error("Error triggering driver portal update:", error);
     }
@@ -1092,3 +1142,54 @@ const testCompleteDataFlow = () => {
 
 // Add to global scope for testing
 window.testCompleteDataFlow = testCompleteDataFlow;
+
+// TEST FUNCTION - Add this at the end of the file
+// Function to test cross-portal communication
+window.testCrossPortalSync = () => {
+    console.log("🧪 TESTING CROSS-PORTAL COMMUNICATION");
+    console.log("=" .repeat(60));
+    
+    // Create a test order
+    const testOrder = {
+        referenceNumber: `TEST-${Date.now()}`,
+        customerName: "Test Customer",
+        customerPhone: "+233 55 123 4567",
+        storeName: "Test Store",
+        items: ["Test Item 1", "Test Item 2"],
+        customRequest: "This is a test order to verify sync",
+        ecoFriendly: true,
+        status: "Order Placed and Received",
+        timestamp: new Date().toISOString()
+    };
+    
+    console.log("📦 Creating test order:", testOrder.referenceNumber);
+    
+    // Add to orders
+    orders.set(testOrder.referenceNumber, testOrder);
+    
+    // Save to localStorage
+    saveOrders();
+    
+    // Trigger all sync methods
+    triggerDriverPortalUpdate();
+    
+    // Notify about the test
+    console.log("✅ TEST ORDER CREATED AND SYNC TRIGGERED");
+    console.log("🔍 Check the driver portal - the test order should appear immediately!");
+    console.log("📋 Order Reference:", testOrder.referenceNumber);
+    console.log("👤 Customer:", testOrder.customerName);
+    console.log("🏪 Store:", testOrder.storeName);
+    console.log("=" .repeat(60));
+    
+    // Also show an alert
+    showAlert(`Test order ${testOrder.referenceNumber} created! Check the driver portal to verify sync is working.`, "success");
+    
+    return testOrder.referenceNumber;
+};
+
+// Add instructions for the user
+console.log("🧪 SYNC TEST AVAILABLE");
+console.log("To test cross-portal communication, run: testCrossPortalSync()");
+console.log("This will create a test order and trigger all sync methods.");
+console.log("Then check the driver portal to see if the order appears immediately.");
+console.log("=" .repeat(60));

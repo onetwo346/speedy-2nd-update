@@ -158,18 +158,171 @@ const monitorDataIntegrity = () => {
     console.log("✅ Data integrity monitoring active");
 };
 
-// Add to initialization
+// Enhanced storage event handling with comprehensive synchronization support
+const handleStorageChange = (event) => {
+    console.log("📡 Storage event handler called:", event.key);
+    
+    // Handle main orders storage
+    if (event.key === "speedyDeliveryOrders") {
+        console.log("📡 Main orders storage changed");
+        triggerDataRefresh();
+    }
+    
+    // Handle all synchronization triggers
+    const syncKeys = [
+        'speedyDeliveryLastUpdate',
+        'speedyDeliverySync',
+        'speedyDeliveryPollTrigger',
+        'speedyDeliveryXTab1',
+        'speedyDeliveryXTab2',
+        'speedyDeliveryXTab3'
+    ];
+    
+    if (syncKeys.includes(event.key)) {
+        console.log("📡 SYNC TRIGGER DETECTED:", event.key);
+        triggerDataRefresh();
+    }
+    
+    // Handle new order notifications
+    if (event.key === "speedyDeliveryNewOrder") {
+        try {
+            const newOrderData = JSON.parse(event.newValue || "{}");
+            console.log("🎯 New order flag detected:", newOrderData);
+            if (newOrderData.referenceNumber) {
+                updateConnectionStatus('updating');
+                setTimeout(() => {
+                    triggerDataRefresh();
+                    showNewOrderNotification(newOrderData.referenceNumber);
+                }, 200);
+            }
+        } catch (error) {
+            console.error("Error parsing new order data:", error);
+        }
+    }
+};
+
+// Enhanced data refresh function
+const triggerDataRefresh = () => {
+    console.log("🔄 Triggering comprehensive data refresh");
+    updateConnectionStatus('updating');
+    
+    setTimeout(() => {
+        loadOrders();
+        updateDataIntegrityStatus();
+        renderOrders();
+        updateOrderStats();
+        checkForNewOrders();
+        updateConnectionStatus('connected');
+        console.log("✅ Data refresh completed");
+    }, 100);
+};
+
+// Enhanced BroadcastChannel handling
+const setupBroadcastChannel = () => {
+    if (typeof BroadcastChannel !== 'undefined') {
+        try {
+            const channel = new BroadcastChannel('speedyDeliveryChannel');
+            channel.onmessage = (event) => {
+                console.log("📡 BroadcastChannel message received:", event.data);
+                if (event.data.type === 'ordersUpdated') {
+                    triggerDataRefresh();
+                }
+            };
+            console.log("✅ BroadcastChannel listener setup complete");
+        } catch (error) {
+            console.log("BroadcastChannel not supported:", error);
+        }
+    }
+};
+
+// Enhanced IndexedDB monitoring
+const setupIndexedDBMonitoring = () => {
+    if (typeof indexedDB !== 'undefined') {
+        try {
+            const request = indexedDB.open('speedyDeliveryDB', 1);
+            request.onsuccess = function(event) {
+                const db = event.target.result;
+                
+                // Poll IndexedDB for changes
+                setInterval(() => {
+                    try {
+                        const transaction = db.transaction(['orders'], 'readonly');
+                        const store = transaction.objectStore('orders');
+                        const getRequest = store.get('lastUpdate');
+                        
+                        getRequest.onsuccess = function(event) {
+                            const result = event.target.result;
+                            if (result && result.timestamp) {
+                                const lastCheck = localStorage.getItem('lastIndexedDBCheck');
+                                if (!lastCheck || result.timestamp > lastCheck) {
+                                    console.log("📡 IndexedDB change detected");
+                                    localStorage.setItem('lastIndexedDBCheck', result.timestamp);
+                                    triggerDataRefresh();
+                                }
+                            }
+                        };
+                    } catch (error) {
+                        console.log("IndexedDB polling error:", error);
+                    }
+                }, 3000); // Check every 3 seconds
+            };
+        } catch (error) {
+            console.log("IndexedDB monitoring not available:", error);
+        }
+    }
+};
+
+// Enhanced polling system with multiple triggers
+const setupEnhancedPolling = () => {
+    // Primary polling - every 3 seconds
+    setInterval(() => {
+        const currentOrderCount = orders.size;
+        loadOrders();
+        
+        if (orders.size !== currentOrderCount) {
+            console.log("🔄 Order count changed during polling");
+            triggerDataRefresh();
+        }
+    }, 3000);
+    
+    // Secondary polling - check for poll triggers
+    setInterval(() => {
+        const pollTrigger = localStorage.getItem('speedyDeliveryPollTrigger');
+        const lastPoll = localStorage.getItem('lastPollTriggerCheck');
+        
+        if (pollTrigger && pollTrigger !== lastPoll) {
+            console.log("🔄 Poll trigger detected");
+            localStorage.setItem('lastPollTriggerCheck', pollTrigger);
+            triggerDataRefresh();
+        }
+    }, 1000);
+    
+    // Emergency polling - every 10 seconds as fallback
+    setInterval(() => {
+        console.log("🔄 Emergency polling check");
+        const beforeCount = orders.size;
+        loadOrders();
+        
+        if (orders.size !== beforeCount) {
+            console.log("🚨 Emergency polling detected changes");
+            triggerDataRefresh();
+        }
+    }, 10000);
+};
+
+// Enhanced initialization with all sync methods
 const initDriverPortal = () => {
-    console.log("🚀 Initializing Driver Portal with Data Integrity Checks");
+    console.log("🚀 Initializing Enhanced Driver Portal with ALL sync methods");
     
     // Load orders and verify data
     loadOrders();
-    
-    // Test data integrity
     testDataIntegrity();
-    
-    // Start monitoring
     monitorDataIntegrity();
+    
+    // Setup all synchronization methods
+    setupBroadcastChannel();
+    setupIndexedDBMonitoring();
+    setupEnhancedPolling();
     
     // Setup real-time monitoring
     setupRealTimeMonitoring();
@@ -178,31 +331,44 @@ const initDriverPortal = () => {
     setupPhotoUpload();
     
     // Initial render
-            renderOrders();
-            updateOrderStats();
+    renderOrders();
+    updateOrderStats();
     updateDataIntegrityStatus();
     
-    // START AUTOMATED MONITORING SYSTEM
+    // Start automated monitoring
     startAutomatedDataIntegrityMonitoring();
     
-    // Setup filter
+    // Setup filter and refresh
     const statusFilter = getElement("status-filter");
     if (statusFilter) {
         statusFilter.addEventListener("change", filterOrders);
     }
     
-    // Setup refresh button
     const refreshBtn = getElement("refresh-btn");
     if (refreshBtn) {
         refreshBtn.addEventListener("click", refreshOrders);
     }
+    
+    // Enhanced storage event listeners
+    window.addEventListener("storage", handleStorageChange);
+    
+    // Custom event listeners
+    window.addEventListener("ordersUpdated", (event) => {
+        console.log("📡 Custom ordersUpdated event received:", event.detail);
+        triggerDataRefresh();
+    });
+    
+    window.addEventListener("newOrderPlaced", (event) => {
+        console.log("📡 Custom newOrderPlaced event received:", event.detail);
+        triggerDataRefresh();
+    });
     
     // Cleanup on page unload
     window.addEventListener('beforeunload', () => {
         stopAutomatedDataIntegrityMonitoring();
     });
     
-    console.log("✅ Driver Portal initialized with AUTOMATED data integrity monitoring");
+    console.log("✅ Enhanced Driver Portal initialized with ALL synchronization methods");
 };
 
 // Enhanced initialization with comprehensive real-time capabilities
@@ -996,54 +1162,6 @@ const saveOrders = () => {
     }
 };
 
-// Enhanced storage event handling with automated data integrity monitoring
-const handleStorageChange = (event) => {
-    console.log("📡 Storage event handler called:", event.key);
-    
-    if (event.key === "speedyDeliveryOrders" || event.key === "speedyDeliveryLastUpdate") {
-        console.log("📡 AUTOMATED: Storage change detected:", event.key);
-        updateConnectionStatus('updating');
-        
-        setTimeout(() => {
-            loadOrders();
-            
-            // AUTOMATED DATA INTEGRITY UPDATE - Storage change
-            console.log(`🔍 AUTOMATED: Triggering data integrity update for storage change`);
-            updateDataIntegrityStatus();
-            
-            renderOrders(); // No loading indicator for real-time updates
-            updateOrderStats();
-            checkForNewOrders();
-            updateConnectionStatus('connected');
-        }, 100);
-    }
-    
-    // Check for new order notifications
-    if (event.key === "speedyDeliveryNewOrder") {
-        try {
-            const newOrderData = JSON.parse(event.newValue || "{}");
-            console.log("🎯 New order flag detected:", newOrderData);
-            if (newOrderData.referenceNumber) {
-                updateConnectionStatus('updating');
-                setTimeout(() => {
-                    loadOrders();
-                    
-                    // AUTOMATED DATA INTEGRITY UPDATE - New order
-                    console.log(`🔍 AUTOMATED: Triggering data integrity update for new order`);
-                    updateDataIntegrityStatus();
-                    
-                    renderOrders(); // No loading indicator for storage events
-                    updateOrderStats();
-                    showNewOrderNotification(newOrderData.referenceNumber);
-                    updateConnectionStatus('connected');
-                }, 200);
-            }
-        } catch (error) {
-            console.error("Error parsing new order data:", error);
-        }
-    }
-};
-
 // Enhanced custom event handling with automated data integrity monitoring
 const handleOrdersUpdated = (event) => {
     console.log("🔔 AUTOMATED: Orders updated event handler called:", event.detail);
@@ -1381,220 +1499,4 @@ const exportDataReport = () => {
             report.issues.push(`${ref}: Missing customer name`);
         }
         if (!order.customerPhone) {
-            report.issues.push(`${ref}: Missing customer phone`);
-        }
-        if (!order.storeName) {
-            report.issues.push(`${ref}: Missing store name`);
-        }
-        if (!order.items || order.items.length === 0) {
-            report.issues.push(`${ref}: Missing or empty items`);
-        }
-    });
-    
-    // Download report as JSON
-    const reportData = JSON.stringify(report, null, 2);
-    const blob = new Blob([reportData], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `speedy-delivery-report-${Date.now()}.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    
-    console.log("✅ Data report exported successfully");
-    showAlert("Data integrity report downloaded successfully!", "success");
-    
-    // Also log to console for immediate viewing
-    console.log("📋 COMPREHENSIVE DATA REPORT:");
-    console.log("=" .repeat(50));
-    console.log(`Total Orders: ${report.summary.totalOrders}`);
-    console.log(`Complete Orders: ${report.summary.completeOrders}`);
-    console.log(`Incomplete Orders: ${report.summary.incompleteOrders}`);
-    console.log(`Data Integrity: ${((report.summary.completeOrders / report.summary.totalOrders) * 100).toFixed(1)}%`);
-    
-    if (report.issues.length > 0) {
-        console.log("\n⚠️ ISSUES FOUND:");
-        report.issues.forEach(issue => console.log(`  - ${issue}`));
-    } else {
-        console.log("\n✅ No data integrity issues found!");
-    }
-};
-
-// Enhanced test function with visual feedback
-const testDataIntegrityWithFeedback = () => {
-    testDataIntegrity();
-    updateDataIntegrityStatus();
-    showAlert("Data integrity test completed. Check console for detailed results.", "info");
-};
-
-// Override the global testDataIntegrity for the button
-window.testDataIntegrity = testDataIntegrityWithFeedback;
-window.exportDataReport = exportDataReport;
-
-// DIAGNOSTIC FUNCTION FOR MISSING CUSTOMER DATA
-const diagnoseDataIntegrityIssues = () => {
-    console.log("🔍 DIAGNOSTIC: Analyzing data integrity issues...");
-    console.log("=" .repeat(60));
-    
-    let issuesFound = 0;
-    const detailedReport = [];
-    
-    orders.forEach((order, ref) => {
-        const issues = [];
-        
-        // Check each required field
-        if (!order.customerName || order.customerName.trim() === '') {
-            issues.push("Missing customer name");
-        }
-        
-        if (!order.customerPhone || order.customerPhone.trim() === '') {
-            issues.push("Missing customer phone");
-        }
-        
-        if (!order.storeName || order.storeName.trim() === '') {
-            issues.push("Missing store name");
-        }
-        
-        if (!order.items || !Array.isArray(order.items) || order.items.length === 0) {
-            issues.push("Missing or empty items list");
-        }
-        
-        if (!order.status || order.status.trim() === '') {
-            issues.push("Missing status");
-        }
-        
-        if (!order.timestamp) {
-            issues.push("Missing timestamp");
-        }
-        
-        // If issues found, log detailed info
-        if (issues.length > 0) {
-            issuesFound++;
-            const orderReport = {
-                referenceNumber: ref,
-                issues: issues,
-                currentData: {
-                    customerName: order.customerName || 'MISSING',
-                    customerPhone: order.customerPhone || 'MISSING',
-                    storeName: order.storeName || 'MISSING',
-                    itemsCount: order.items ? order.items.length : 0,
-                    status: order.status || 'MISSING',
-                    timestamp: order.timestamp || 'MISSING'
-                }
-            };
-            
-            detailedReport.push(orderReport);
-            
-            console.log(`🚨 ORDER ${ref}:`);
-            console.log(`   Issues: ${issues.join(', ')}`);
-            console.log(`   Customer Name: "${order.customerName || 'MISSING'}"`);
-            console.log(`   Customer Phone: "${order.customerPhone || 'MISSING'}"`);
-            console.log(`   Store: "${order.storeName || 'MISSING'}"`);
-            console.log(`   Items: ${order.items ? order.items.length : 0} items`);
-            console.log(`   Status: "${order.status || 'MISSING'}"`);
-            console.log('');
-        }
-    });
-    
-    console.log("=" .repeat(60));
-    console.log(`📊 DIAGNOSTIC SUMMARY:`);
-    console.log(`   Total Orders: ${orders.size}`);
-    console.log(`   Orders with Issues: ${issuesFound}`);
-    console.log(`   Orders with Complete Data: ${orders.size - issuesFound}`);
-    console.log(`   Data Integrity: ${orders.size > 0 ? ((orders.size - issuesFound) / orders.size * 100).toFixed(1) : 0}%`);
-    
-    if (issuesFound === 0) {
-        console.log("✅ All orders have complete customer data!");
-    } else {
-        console.log(`⚠️ ${issuesFound} orders need attention!`);
-    }
-    
-    console.log("=" .repeat(60));
-    
-    return {
-        totalOrders: orders.size,
-        ordersWithIssues: issuesFound,
-        ordersComplete: orders.size - issuesFound,
-        detailedReport: detailedReport
-    };
-};
-
-// Enhanced automated fix for orders missing customer data
-const attemptDataIntegrityFix = () => {
-    console.log("🔧 AUTOMATED FIX: Attempting to repair data integrity issues...");
-    
-    let fixesApplied = 0;
-    
-    orders.forEach((order, ref) => {
-        let orderModified = false;
-        
-        // Try to fix missing customer name
-        if (!order.customerName || order.customerName.trim() === '') {
-            // Check if there's any customer info in other fields that might help
-            if (order.customerPhone && !order.customerName) {
-                console.log(`🔧 Order ${ref}: Customer name missing, but phone exists: ${order.customerPhone}`);
-                // Keep as is - this indicates the order form might have validation issues
-            }
-        }
-        
-        // Ensure store name exists if storeId exists
-        if (!order.storeName && order.storeId) {
-            const store = STORES.find(s => s.id === order.storeId);
-            if (store) {
-                order.storeName = store.name;
-                orderModified = true;
-                console.log(`🔧 Fixed missing store name for ${ref}: ${store.name}`);
-            }
-        }
-        
-        // Ensure items is an array
-        if (!order.items || !Array.isArray(order.items)) {
-            if (typeof order.items === 'string') {
-                order.items = order.items.split('\n').filter(item => item.trim());
-                orderModified = true;
-                console.log(`🔧 Fixed items format for ${ref}: converted string to array`);
-            }
-        }
-        
-        // Set default status if missing
-        if (!order.status || order.status.trim() === '') {
-            order.status = "Order Placed and Received";
-            orderModified = true;
-            console.log(`🔧 Fixed missing status for ${ref}: set to default`);
-        }
-        
-        // Set timestamp if missing
-        if (!order.timestamp) {
-            order.timestamp = new Date().toISOString();
-            orderModified = true;
-            console.log(`🔧 Fixed missing timestamp for ${ref}: set to current time`);
-        }
-        
-        if (orderModified) {
-            orders.set(ref, order);
-            fixesApplied++;
-        }
-    });
-    
-    if (fixesApplied > 0) {
-        saveOrders();
-        updateDataIntegrityStatus();
-        renderOrders();
-        console.log(`✅ Applied ${fixesApplied} automated fixes`);
-        showAlert(`Applied ${fixesApplied} automated data fixes`, "success");
-    } else {
-        console.log("ℹ️ No automated fixes available");
-        showAlert("No automated fixes available. Manual review may be needed.", "info");
-    }
-    
-    return fixesApplied;
-};
-
-// Make diagnostic functions globally available
-window.diagnoseDataIntegrityIssues = diagnoseDataIntegrityIssues;
-window.attemptDataIntegrityFix = attemptDataIntegrityFix;
-
-console.log("🚚 Driver Portal Script Loaded Successfully");
+            report.issues.push(`
