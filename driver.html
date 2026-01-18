@@ -21,7 +21,12 @@
     <link rel="stylesheet" href="driver.css">
     
     <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚚</text></svg>">
+    <link rel="icon" type="image/png" href="4A7E09DF-D8AF-4D29-893B-65FDDB319BED.png">
+	
+	<script src="auth.js"></script>
+	<script>
+		speedyRequireRole('driver', 'driver-login.html');
+	</script>
 </head>
 <body>
     <!-- Skip to content link for accessibility -->
@@ -31,17 +36,26 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top" role="navigation" aria-label="Driver navigation">
         <div class="container">
             <a class="navbar-brand" href="#" aria-label="Speedy Delivery Driver Home">
-                <i class="fas fa-truck-fast" aria-hidden="true"></i> 
+                <img src="4A7E09DF-D8AF-4D29-893B-65FDDB319BED.png" alt="Speedy Delivery Logo" style="height: 40px; width: auto; margin-right: 10px;">
                 <span class="brand-text">Speedy Delivery Driver</span>
             </a>
             <div class="navbar-nav ms-auto">
                 <span class="navbar-text">
                     <i class="fas fa-map-marker-alt me-2" aria-hidden="true"></i>
-                    <span class="location-text">Agona Swedru</span>
+                    <span class="location-text">Central Region</span>
                 </span>
+                <button class="btn btn-outline-light btn-sm ms-3" onclick="speedyLogout('driver-login.html')">
+                    <i class="fas fa-right-from-bracket me-1" aria-hidden="true"></i>
+                    Logout
+                </button>
                 <button class="btn btn-outline-light btn-sm ms-3" onclick="refreshOrders()">
                     <i class="fas fa-sync-alt me-1" aria-hidden="true"></i>
                     Refresh
+                </button>
+                <button class="btn btn-outline-light btn-sm ms-3" onclick="showMessages()">
+                    <i class="fas fa-envelope me-1" aria-hidden="true"></i>
+                    Messages
+                    <span class="badge bg-danger ms-1" id="messageNotification" style="display: none;">0</span>
                 </button>
             </div>
         </div>
@@ -50,7 +64,7 @@
     <!-- Main Content -->
     <main id="main-content">
         <!-- Driver Dashboard Header -->
-        <section class="driver-header bg-primary text-white py-4 mt-5">
+        <section class="driver-header bg-primary text-white py-4">
             <div class="container">
                 <div class="row align-items-center">
                     <div class="col-md-8">
@@ -59,6 +73,15 @@
                             Driver Dashboard
                         </h1>
                         <p class="mb-0">Manage your delivery orders efficiently</p>
+                        <div class="d-flex align-items-center mt-3">
+                            <img id="driver-welcome-avatar" alt="Driver" class="rounded-circle border border-light" style="width: 52px; height: 52px; object-fit: cover; display: none;" />
+                            <div id="driver-welcome-initials" class="driver-welcome-initials" style="display: none;"></div>
+                            <div class="ms-3">
+                                <div class="fw-semibold" style="font-size: 1.05rem;">Welcome, <span id="driver-welcome-name">Driver</span></div>
+                                <div class="text-white-50 small" id="driver-welcome-subtitle">Ready for deliveries today</div>
+                                <div class="text-white-50 small" id="driver-welcome-identifier" style="display: none;"></div>
+                            </div>
+                        </div>
                     </div>
                     <div class="col-md-4 text-md-end">
                         <div class="driver-stats">
@@ -71,7 +94,7 @@
                                     <span class="status-indicator" id="connection-status">🟢</span>
                                     <span class="status-text" id="connection-text">Live</span>
                                 </div>
-                                <div class="data-integrity-status">
+                                <div class="data-integrity-status" data-role="admin">
                                     <span class="status-indicator" id="data-integrity-status">🔍</span>
                                     <span class="status-text" id="data-integrity-text">Checking...</span>
                                 </div>
@@ -85,8 +108,72 @@
             </div>
         </section>
 
+        <section id="driver-approval-banner" class="py-3" style="display: none;">
+            <div class="container">
+                <div class="alert alert-warning mb-0">
+                    <strong>Pending Admin Approval:</strong> Your driver account must be approved before you can view and accept orders.
+                    You can still update your profile and message the admin.
+                </div>
+            </div>
+        </section>
+
+        <section id="driver-profile" class="py-4">
+            <div class="container">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h2 class="section-title mb-0">
+                                <i class="fas fa-user me-2" aria-hidden="true"></i>
+                                My Profile
+                            </h2>
+                            <div class="text-muted small" id="driver-profile-status"></div>
+                        </div>
+
+                        <div id="driver-profile-alert"></div>
+
+                        <div class="row g-3 align-items-center">
+                            <div class="col-md-5">
+                                <div class="d-flex align-items-center">
+                                    <img id="driver-profile-photo" class="rounded-circle border" alt="Profile" style="width: 86px; height: 86px; object-fit: cover; display: none;" />
+                                    <div id="driver-profile-initials" class="driver-welcome-initials" style="width: 86px; height: 86px; display: none;"></div>
+                                    <div class="ms-3 w-100">
+                                        <label for="driver-profile-photo-input" class="form-label mb-1">Profile photo</label>
+                                        <input type="file" class="form-control form-control-sm" id="driver-profile-photo-input" accept="image/*">
+                                        <button class="btn btn-primary btn-sm mt-2" id="driver-profile-photo-save" type="button">
+                                            <i class="fas fa-upload me-1" aria-hidden="true"></i>
+                                            Save Photo
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-7">
+                                <div class="row g-2">
+                                    <div class="col-sm-6">
+                                        <div class="small text-muted">Name</div>
+                                        <div class="fw-semibold" id="driver-profile-name">—</div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <div class="small text-muted">Email</div>
+                                        <div class="fw-semibold" id="driver-profile-email">—</div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <div class="small text-muted">Phone</div>
+                                        <div class="fw-semibold" id="driver-profile-phone">—</div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <div class="small text-muted">Login</div>
+                                        <div class="fw-semibold">Use email or phone</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- Data Integrity Panel -->
-        <section id="data-integrity-panel" class="py-3 bg-light border-bottom">
+        <section id="data-integrity-panel" class="py-3 bg-light border-bottom" data-role="admin">
             <div class="container">
                 <div class="row">
                     <div class="col-12">
@@ -238,6 +325,32 @@
         </div>
     </div>
 
+    <!-- Messages Modal -->
+    <div class="modal fade" id="messagesModal" tabindex="-1" aria-labelledby="messagesModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="messagesModalLabel">
+                        <i class="fas fa-envelope me-2"></i>
+                        Messages from Admin
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="driverMessageHistory" class="border rounded p-3 mb-3" style="height: 350px; overflow-y: auto; background-color: #f8f9fa;">
+                        <div class="text-center text-muted">No messages yet</div>
+                    </div>
+                    <div class="input-group">
+                        <textarea class="form-control" id="driverMessageInput" placeholder="Type your reply..." rows="2"></textarea>
+                        <button class="btn btn-primary" type="button" id="sendDriverMessageBtn">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Loading Overlay -->
     <div id="loading-overlay" class="loading-overlay" style="display: none;">
         <div class="loading-content">
@@ -251,5 +364,134 @@
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="driver.js"></script>
+    
+    <!-- Driver Messaging Script -->
+    <script>
+        // Initialize messaging modal
+        const messagesModal = new bootstrap.Modal(document.getElementById('messagesModal'));
+        
+        // Get current driver ID from session
+        const getCurrentDriverId = () => {
+            const session = speedyGetSession();
+            return session && session.driverId ? session.driverId : null;
+        };
+
+        // Message storage functions
+        const getDriverMessages = (driverId) => {
+            const key = `speedy_messages_${driverId}`;
+            try {
+                return JSON.parse(localStorage.getItem(key) || '[]');
+            } catch {
+                return [];
+            }
+        };
+
+        const saveDriverMessage = (driverId, message) => {
+            const key = `speedy_messages_${driverId}`;
+            const messages = getDriverMessages(driverId);
+            messages.push({
+                id: Date.now(),
+                text: message,
+                sender: 'driver',
+                timestamp: new Date().toISOString()
+            });
+            localStorage.setItem(key, JSON.stringify(messages));
+        };
+
+        const renderDriverMessages = (driverId) => {
+            const messages = getDriverMessages(driverId);
+            const messageHistory = document.getElementById('driverMessageHistory');
+            
+            if (messages.length === 0) {
+                messageHistory.innerHTML = '<div class="text-center text-muted">No messages yet</div>';
+                return;
+            }
+
+            messageHistory.innerHTML = messages.map(msg => `
+                <div class="mb-2 p-2 rounded ${msg.sender === 'driver' ? 'bg-success text-white ms-5' : 'bg-white me-5'}">
+                    <div class="small mb-1"><strong>${msg.sender === 'admin' ? 'Admin' : 'You'}</strong></div>
+                    <div>${msg.text}</div>
+                    <div class="small opacity-75">${new Date(msg.timestamp).toLocaleString()}</div>
+                </div>
+            `).join('');
+            
+            messageHistory.scrollTop = messageHistory.scrollHeight;
+        };
+
+        // Update message notification badge
+        const updateMessageNotification = () => {
+            const driverId = getCurrentDriverId();
+            if (!driverId) return;
+
+            const messages = getDriverMessages(driverId);
+            const unreadCount = messages.filter(msg => 
+                msg.sender === 'admin' && !msg.read
+            ).length;
+
+            const badge = document.getElementById('messageNotification');
+            if (unreadCount > 0) {
+                badge.textContent = unreadCount;
+                badge.style.display = 'inline';
+            } else {
+                badge.style.display = 'none';
+            }
+        };
+
+        // Mark messages as read
+        const markMessagesAsRead = (driverId) => {
+            const key = `speedy_messages_${driverId}`;
+            const messages = getDriverMessages(driverId);
+            const updatedMessages = messages.map(msg => ({
+                ...msg,
+                read: true
+            }));
+            localStorage.setItem(key, JSON.stringify(updatedMessages));
+        };
+
+        // Show messages modal
+        const showMessages = () => {
+            const driverId = getCurrentDriverId();
+            if (!driverId) {
+                alert('Please log in to view messages');
+                return;
+            }
+
+            renderDriverMessages(driverId);
+            markMessagesAsRead(driverId);
+            updateMessageNotification();
+            messagesModal.show();
+        };
+
+        // Send message functionality
+        document.getElementById('sendDriverMessageBtn').addEventListener('click', () => {
+            const messageInput = document.getElementById('driverMessageInput');
+            const message = messageInput.value.trim();
+            const driverId = getCurrentDriverId();
+            
+            if (message && driverId) {
+                saveDriverMessage(driverId, message);
+                renderDriverMessages(driverId);
+                messageInput.value = '';
+            }
+        });
+
+        // Send message on Enter key
+        document.getElementById('driverMessageInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                document.getElementById('sendDriverMessageBtn').click();
+            }
+        });
+
+        // Check for new messages periodically
+        setInterval(() => {
+            updateMessageNotification();
+        }, 30000); // Check every 30 seconds
+
+        // Initial notification update
+        document.addEventListener('DOMContentLoaded', () => {
+            updateMessageNotification();
+        });
+    </script>
 </body>
 </html>

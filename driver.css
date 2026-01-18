@@ -19,6 +19,21 @@ body {
     flex-direction: column;
 }
 
+ .driver-welcome-initials {
+     width: 52px;
+     height: 52px;
+     border-radius: 9999px;
+     border: 2px solid rgba(255,255,255,0.9);
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     font-weight: 800;
+     letter-spacing: 0.5px;
+     background: rgba(255,255,255,0.15);
+     backdrop-filter: blur(6px);
+     color: #fff;
+ }
+
 /* Skip Link for Accessibility */
 .skip-link {
     position: absolute;
@@ -89,6 +104,20 @@ main {
     flex: 1 0 auto;
     display: flex;
     flex-direction: column;
+}
+
+.admin-nav {
+    margin: 0;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+}
+
+.admin-nav .nav {
+    margin-bottom: 0;
+}
+
+#dashboard-section .driver-header {
+    margin-top: 0;
 }
 
 /* Driver Header */

@@ -12,7 +12,8 @@ const STORES = [
         icon: "fas fa-spa",
         color: "#ff6b6b",
         rating: 4.8,
-        description: "Premium cosmetics and beauty products for all your beauty needs"
+        description: "Mini market with cosmetics, beauty products, and everyday essentials",
+        image: "unnamed.webp"
     },
     { 
         id: "2", 
@@ -22,7 +23,8 @@ const STORES = [
         icon: "fas fa-hotel",
         color: "#4ecdc4",
         rating: 4.6,
-        description: "Comfortable accommodation and delicious local cuisine"
+        description: "Comfortable accommodation and delicious local cuisine",
+        image: "82fd884e-31f7-4c84-a9eb-456bbcce7405.jpeg"
     },
     { 
         id: "3", 
@@ -32,7 +34,8 @@ const STORES = [
         icon: "fas fa-shopping-basket",
         color: "#45b7d1",
         rating: 4.7,
-        description: "Fresh groceries and household essentials for your daily needs"
+        description: "Fresh groceries and household essentials for your daily needs",
+        image: "IMG_3422.jpeg"
     },
     { 
         id: "4", 
@@ -42,7 +45,8 @@ const STORES = [
         icon: "fas fa-pizza-slice",
         color: "#96ceb4",
         rating: 4.5,
-        description: "Delicious pizzas and fast food delivered fresh to your door"
+        description: "Delicious pizzas and fast food delivered fresh to your door",
+        image: "9e20f207-b33a-473a-ba69-19c5f64d0f01.jpeg"
     }
 ];
 
@@ -308,9 +312,12 @@ const renderStoreCards = () => {
             storeCard.className = "col-lg-6 col-md-6 mb-4";
             storeCard.innerHTML = `
                 <div class="store-card animate-on-scroll">
-                    <div class="store-card-icon" style="color: ${store.color}">
-                        <i class="${store.icon}" aria-hidden="true"></i>
-                    </div>
+                    ${store.image ? 
+                        `<img src="${store.image}" alt="${store.name}" class="store-card-image">` :
+                        `<div class="store-card-icon" style="color: ${store.color}">
+                            <i class="${store.icon}" aria-hidden="true"></i>
+                        </div>`
+                    }
                     <h5>${store.name}</h5>
                     <p class="store-type">
                         <i class="fas fa-tag me-1" aria-hidden="true"></i>
@@ -377,6 +384,12 @@ const validateForm = (formData) => {
         errors.push("Please enter a valid phone number (10-15 digits)");
     }
     
+    if (!formData.customerAddress) {
+        errors.push("Please enter your home address");
+    } else if (formData.customerAddress.length < 10) {
+        errors.push("Address must be at least 10 characters long");
+    }
+    
     if (!formData.storeId) {
         errors.push("Please select a store");
     }
@@ -403,6 +416,7 @@ const handleOrderSubmission = (event) => {
     // Get form elements
     const customerName = getElement("customer-name");
     const customerPhone = getElement("customer-phone");
+    const customerAddress = getElement("customer-address");
     const storeSelect = getElement("store-select");
     const itemsInput = getElement("items");
     const customRequestInput = getElement("custom-request");
@@ -410,7 +424,7 @@ const handleOrderSubmission = (event) => {
     const paymentStep = getElement("payment-step");
     const paymentRef = getElement("payment-reference");
     
-    if (!customerName || !customerPhone || !storeSelect || !itemsInput || !paymentStep) {
+    if (!customerName || !customerPhone || !customerAddress || !storeSelect || !itemsInput || !paymentStep) {
         console.error("Required form elements not found");
         showAlert("Form elements not found. Please refresh the page.", "danger");
         return;
@@ -426,6 +440,7 @@ const handleOrderSubmission = (event) => {
     const formData = {
         customerName: customerName.value.trim(),
         customerPhone: customerPhone.value.trim(),
+        customerAddress: customerAddress.value.trim(),
         storeId: storeSelect.value,
         items: itemsInput.value.split("\n").filter(item => item.trim()),
         customRequest: customRequestInput ? customRequestInput.value.trim() : "",
@@ -479,6 +494,7 @@ const handleOrderSubmission = (event) => {
     console.log("🔍 DATA VERIFICATION:");
     console.log("✓ Customer Name:", order.customerName);
     console.log("✓ Customer Phone:", order.customerPhone);
+    console.log("✓ Customer Address:", order.customerAddress);
     console.log("✓ Store ID:", order.storeId);
     console.log("✓ Store Name:", order.storeName);
     console.log("✓ Items:", order.items);
@@ -489,10 +505,11 @@ const handleOrderSubmission = (event) => {
     console.log("✓ Timestamp:", order.timestamp);
     
     // Verify critical customer data
-    if (!order.customerName || !order.customerPhone) {
+    if (!order.customerName || !order.customerPhone || !order.customerAddress) {
         console.error("🚨 CRITICAL ERROR: Missing customer information!");
         console.error("Customer Name:", order.customerName);
         console.error("Customer Phone:", order.customerPhone);
+        console.error("Customer Address:", order.customerAddress);
         showAlert("Customer information is missing. Please refresh and try again.", "danger");
         return;
     }
@@ -616,6 +633,7 @@ const handlePaymentConfirmation = () => {
                             <p><strong>Reference Number:</strong> <span class="text-primary">${referenceNumber}</span></p>
                             <p><strong>Customer:</strong> ${order.customerName}</p>
                             <p><strong>Phone:</strong> ${order.customerPhone}</p>
+                            <p><strong>Address:</strong> ${order.customerAddress}</p>
                             <p><strong>Store:</strong> ${order.storeName}</p>
                             <p><strong>Status:</strong> <span class="status-badge status-confirmed">${order.status}</span></p>
                         </div>
@@ -756,6 +774,8 @@ const updateTrackResult = (referenceNumber) => {
                 </div>
                 <div class="col-md-6">
                     <h6><i class="fas fa-list me-2"></i>Order Details</h6>
+                    <p class="mb-1"><strong>Customer:</strong> ${order.customerName}</p>
+                    <p class="mb-1"><strong>Address:</strong> ${order.customerAddress}</p>
                     <p class="mb-1"><strong>Items:</strong> ${order.items.join(", ")}</p>
                     ${order.customRequest ? `<p class="mb-1"><strong>Special Instructions:</strong> ${order.customRequest}</p>` : ""}
                     <p class="mb-3"><strong>Eco-Friendly:</strong> ${order.ecoFriendly ? "Yes" : "No"}</p>
@@ -1154,6 +1174,7 @@ window.testCrossPortalSync = () => {
         referenceNumber: `TEST-${Date.now()}`,
         customerName: "Test Customer",
         customerPhone: "+233 55 123 4567",
+        customerAddress: "Test Address, House 123, Near Test Landmark, Agona Swedru",
         storeName: "Test Store",
         items: ["Test Item 1", "Test Item 2"],
         customRequest: "This is a test order to verify sync",

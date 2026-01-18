@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Speedy Delivery Admin Portal - Full operational view">
+    <meta name="author" content="Speedy Delivery Service">
+    <meta name="robots" content="noindex, nofollow">
+
+    <title>Speedy Delivery Admin Portal - Order Management</title>
+
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" as="style">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" as="style">
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <link rel="stylesheet" href="driver.css">
+
+    <link rel="icon" type="image/png" href="4A7E09DF-D8AF-4D29-893B-65FDDB319BED.png">
+
+    <script src="auth.js"></script>
+    <script>
+        speedyRequireRole('admin', 'admin-login.html');
+    </script>
+</head>
+<body>
+    <a href="#main-content" class="skip-link visually-hidden-focusable">Skip to main content</a>
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top" role="navigation" aria-label="Admin navigation">
+        <div class="container">
+            <a class="navbar-brand" href="#" aria-label="Speedy Delivery Admin Home">
+                <img src="4A7E09DF-D8AF-4D29-893B-65FDDB319BED.png" alt="Speedy Delivery Logo" style="height: 40px; width: auto; margin-right: 10px;">
+                <span class="brand-text">Speedy Delivery Admin</span>
+            </a>
+            <div class="navbar-nav ms-auto">
+                <span class="navbar-text">
+                    <i class="fas fa-map-marker-alt me-2" aria-hidden="true"></i>
+                    <span class="location-text">Central Region</span>
+                </span>
+                <button class="btn btn-outline-light btn-sm ms-3" onclick="speedyLogout('admin-login.html')">
+                    <i class="fas fa-right-from-bracket me-1" aria-hidden="true"></i>
+                    Logout
+                </button>
+                <button class="btn btn-outline-light btn-sm ms-3" onclick="refreshOrders()">
+                    <i class="fas fa-sync-alt me-1" aria-hidden="true"></i>
+                    Refresh
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main id="main-content">
+        <!-- Admin Navigation Menu -->
+        <section class="admin-nav bg-light border-bottom py-2">
+            <div class="container">
+                <nav class="nav nav-pills nav-fill">
+                    <button class="nav-link active" id="dashboard-tab" onclick="showSection('dashboard')">
+                        <i class="fas fa-tachometer-alt me-2"></i>
+                        Dashboard
+                    </button>
+                    <button class="nav-link" id="drivers-tab" onclick="showSection('drivers')">
+                        <i class="fas fa-id-card me-2"></i>
+                        Registered Drivers
+                    </button>
+                    <button class="nav-link" id="orders-tab" onclick="showSection('orders')">
+                        <i class="fas fa-shopping-cart me-2"></i>
+                        Orders Management
+                    </button>
+                    <button class="nav-link" id="analytics-tab" onclick="showSection('analytics')">
+                        <i class="fas fa-chart-bar me-2"></i>
+                        Analytics
+                    </button>
+                </nav>
+            </div>
+        </section>
+
+        <!-- Dashboard Section -->
+        <section id="dashboard-section" class="admin-section">
+            <div class="driver-header bg-primary text-white py-4">
+                <div class="container">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h1 class="mb-0">
+                                <i class="fas fa-shield-alt me-3" aria-hidden="true"></i>
+                                Admin Dashboard
+                            </h1>
+                            <p class="mb-0">Full operational view and controls</p>
+                        </div>
+                        <div class="col-md-4 text-md-end">
+                            <div class="driver-stats">
+                                <div class="stat-item">
+                                    <span class="stat-number" id="total-orders">0</span>
+                                    <span class="stat-label">Active Orders</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <section id="data-integrity-panel" class="py-3 bg-light border-bottom" data-role="admin">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="data-integrity-info">
+                                    <h6 class="mb-1">
+                                        <i class="fas fa-shield-check me-2" aria-hidden="true"></i>
+                                        Data Integrity Monitor
+                                    </h6>
+                                    <div class="integrity-stats">
+                                        <span class="badge bg-info me-2" id="total-orders-tracked">0 Orders Tracked</span>
+                                        <span class="badge bg-success me-2" id="complete-data-count">0 Complete</span>
+                                        <span class="badge bg-warning me-2" id="incomplete-data-count">0 Missing Data</span>
+                                        <span class="badge bg-secondary" id="last-integrity-check">Never checked</span>
+                                    </div>
+                                </div>
+                                <div class="integrity-actions">
+                                    <button class="btn btn-sm btn-outline-primary me-2" onclick="testDataIntegrity()">
+                                        <i class="fas fa-search me-1" aria-hidden="true"></i>
+                                        Test Integrity
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-secondary" onclick="exportDataReport()">
+                                        <i class="fas fa-download me-1" aria-hidden="true"></i>
+                                        Export Report
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </section>
+
+        <!-- Drivers Section -->
+        <section id="drivers-section" class="admin-section" style="display: none;">
+            <div class="py-4">
+                <div class="container">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h2 class="section-title mb-0">
+                            <i class="fas fa-id-card me-2" aria-hidden="true"></i>
+                            Registered Drivers
+                        </h2>
+                        <div style="max-width: 320px; width: 100%;">
+                            <input type="text" class="form-control form-control-sm" id="driver-search" placeholder="Search name / email / phone">
+                        </div>
+                    </div>
+
+                    <div id="drivers-empty" class="text-center py-4" style="display: none;">
+                        <div class="text-muted">No drivers registered yet.</div>
+                    </div>
+
+                    <div class="row" id="drivers-list"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Orders Section -->
+        <section id="orders-section" class="admin-section" style="display: none;">
+            <div class="py-4">
+                <div class="container">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2 class="section-title">
+                            <i class="fas fa-clipboard-list me-2" aria-hidden="true"></i>
+                            Orders Management
+                        </h2>
+                        <div class="order-filters">
+                            <select class="form-select form-select-sm" id="status-filter" onchange="filterOrders()">
+                                <option value="">All Statuses</option>
+                                <option value="Order Placed and Received">New Orders</option>
+                                <option value="Driver on the Way to Store">En Route to Store</option>
+                                <option value="At the Store">At Store</option>
+                                <option value="Shopping">Shopping</option>
+                                <option value="On the Way to Customer">En Route to Customer</option>
+                                <option value="Delivered">Delivered</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div id="orders-loading" class="text-center py-5" style="display: none;">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading orders...</span>
+                        </div>
+                        <p class="mt-3 text-muted">Loading orders...</p>
+                    </div>
+
+                    <div id="orders-empty" class="text-center py-5" style="display: none;">
+                        <div class="empty-state">
+                            <i class="fas fa-clipboard-list fa-4x text-muted mb-3" aria-hidden="true"></i>
+                            <h4>No Orders</h4>
+                            <p class="text-muted">Orders will appear here when they are placed.</p>
+                            <button class="btn btn-primary" onclick="refreshOrders()">
+                                <i class="fas fa-sync-alt me-2" aria-hidden="true"></i>
+                                Refresh Orders
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="row" id="order-list"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Analytics Section -->
+        <section id="analytics-section" class="admin-section" style="display: none;">
+            <div class="py-4">
+                <div class="container">
+                    <h2 class="section-title mb-4">
+                        <i class="fas fa-chart-bar me-2" aria-hidden="true"></i>
+                        Analytics & Reports
+                    </h2>
+                    
+                    <div class="row">
+                        <div class="col-md-3 mb-4">
+                            <div class="card bg-primary text-white">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <h6 class="card-title">Total Orders</h6>
+                                            <h3 id="analytics-total-orders">0</h3>
+                                        </div>
+                                        <i class="fas fa-shopping-cart fa-2x opacity-75"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-4">
+                            <div class="card bg-success text-white">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <h6 class="card-title">Active Drivers</h6>
+                                            <h3 id="analytics-active-drivers">0</h3>
+                                        </div>
+                                        <i class="fas fa-users fa-2x opacity-75"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-4">
+                            <div class="card bg-warning text-white">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <h6 class="card-title">Pending Orders</h6>
+                                            <h3 id="analytics-pending-orders">0</h3>
+                                        </div>
+                                        <i class="fas fa-clock fa-2x opacity-75"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-4">
+                            <div class="card bg-info text-white">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <h6 class="card-title">Completed Today</h6>
+                                            <h3 id="analytics-completed-today">0</h3>
+                                        </div>
+                                        <i class="fas fa-check-circle fa-2x opacity-75"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-dark text-white py-3 text-center">
+        <div class="container">
+            <p class="mb-0">
+                <i class="fas fa-shield-alt me-2" aria-hidden="true"></i>
+                Admin Portal - Speedy Delivery Service
+            </p>
+        </div>
+    </footer>
+
+    <div class="modal fade" id="orderModal" tabindex="-1" aria-labelledby="orderModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="orderModalLabel">
+                        <i class="fas fa-receipt me-2" aria-hidden="true"></i>
+                        Order Details
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="orderModalBody"></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="driverMediaModal" tabindex="-1" aria-labelledby="driverMediaModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="driverMediaModalLabel">Driver Media</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <img id="driverMediaModalImg" class="img-fluid rounded" alt="Driver media">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Driver Detail Modal -->
+    <div class="modal fade" id="driverDetailModal" tabindex="-1" aria-labelledby="driverDetailModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="driverDetailModalLabel">
+                        <i class="fas fa-user me-2"></i>
+                        Driver Details
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="driverDetailModalBody">
+                    <!-- Driver details will be populated here -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-success" id="messageDriverBtn">
+                        <i class="fas fa-comment me-2"></i>
+                        Send Message
+                    </button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Driver Messaging Modal -->
+    <div class="modal fade" id="driverMessageModal" tabindex="-1" aria-labelledby="driverMessageModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="driverMessageModalLabel">
+                        <i class="fas fa-comment me-2"></i>
+                        Message Driver
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="messageDriverInfo" class="mb-3"></div>
+                    <div id="messageHistory" class="border rounded p-3 mb-3" style="height: 300px; overflow-y: auto; background-color: #f8f9fa;">
+                        <div class="text-center text-muted">No messages yet</div>
+                    </div>
+                    <div class="input-group">
+                        <textarea class="form-control" id="messageInput" placeholder="Type your message..." rows="2"></textarea>
+                        <button class="btn btn-primary" type="button" id="sendMessageBtn">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="driverResetPasswordModal" tabindex="-1" aria-labelledby="driverResetPasswordModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="driverResetPasswordModalLabel">Reset Driver Password</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="driver-reset-alert"></div>
+                    <input type="hidden" id="driver-reset-id" />
+
+                    <div class="mb-2 text-muted small" id="driver-reset-name"></div>
+
+                    <div class="mb-3">
+                        <label for="driver-reset-password" class="form-label">New password</label>
+                        <input type="password" class="form-control" id="driver-reset-password" autocomplete="new-password" />
+                    </div>
+                    <div class="mb-2">
+                        <label for="driver-reset-password2" class="form-label">Confirm password</label>
+                        <input type="password" class="form-control" id="driver-reset-password2" autocomplete="new-password" />
+                    </div>
+                    <div class="text-muted small">Passwords are stored securely (hashed). Admin cannot view plaintext passwords.</div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="driver-reset-save">Reset Password</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="photoModal" tabindex="-1" aria-labelledby="photoModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="photoModalLabel">
+                        <i class="fas fa-camera me-2" aria-hidden="true"></i>
+                        Delivery Confirmation
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Please take a photo to confirm delivery:</p>
+                    <div class="mb-3">
+                        <label for="deliveryPhoto" class="form-label">Select Photo</label>
+                        <input type="file" class="form-control" id="deliveryPhoto" accept="image/*" capture="environment">
+                    </div>
+                    <div id="photoPreview" class="text-center" style="display: none;">
+                        <img id="previewImage" class="img-fluid rounded" style="max-height: 200px;">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-success" id="confirmDeliveryBtn" onclick="confirmDeliveryWithPhoto()">
+                        <i class="fas fa-check me-2" aria-hidden="true"></i>
+                        Confirm Delivery
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="loading-overlay" class="loading-overlay" style="display: none;">
+        <div class="loading-content">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-3">Processing request...</p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="driver.js"></script>
+    <script>
+        const driversListEl = document.getElementById('drivers-list');
+        const driversEmptyEl = document.getElementById('drivers-empty');
+        const driverSearchEl = document.getElementById('driver-search');
+        const driverMediaModalImg = document.getElementById('driverMediaModalImg');
+        const driverMediaModal = new bootstrap.Modal(document.getElementById('driverMediaModal'));
+
+        const resetModalEl = document.getElementById('driverResetPasswordModal');
+        const resetModal = resetModalEl ? new bootstrap.Modal(resetModalEl) : null;
+        const resetIdEl = document.getElementById('driver-reset-id');
+        const resetNameEl = document.getElementById('driver-reset-name');
+        const resetPwdEl = document.getElementById('driver-reset-password');
+        const resetPwd2El = document.getElementById('driver-reset-password2');
+        const resetSaveBtn = document.getElementById('driver-reset-save');
+        const resetAlertEl = document.getElementById('driver-reset-alert');
+
+        const safeText = (v) => String(v || '').replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c]));
+
+        const resolveDriverMedia = async (driver) => {
+            if (driver.mediaId) {
+                const media = await speedyGetDriverMedia(driver.mediaId);
+                if (media) {
+                    return {
+                        licenseFront: media.licenseFront,
+                        licenseBack: media.licenseBack,
+                        selfie: media.selfie,
+                        profilePhoto: media.profilePhoto
+                    };
+                }
+            }
+            return {
+                licenseFront: driver.licenseFront,
+                licenseBack: driver.licenseBack,
+                selfie: driver.selfie,
+                profilePhoto: driver.profilePhoto
+            };
+        };
+
+        const renderDrivers = async () => {
+            if (!driversListEl) return;
+            const query = (driverSearchEl && driverSearchEl.value ? driverSearchEl.value : '').trim().toLowerCase();
+            const drivers = typeof speedyGetDrivers === 'function' ? speedyGetDrivers() : [];
+
+            const filtered = drivers.filter((d) => {
+                const hay = `${d.fullName || ''} ${d.email || ''} ${d.phone || ''}`.toLowerCase();
+                return !query || hay.includes(query);
+            });
+
+            if (driversEmptyEl) {
+                driversEmptyEl.style.display = filtered.length ? 'none' : 'block';
+            }
+
+            driversListEl.innerHTML = '';
+
+            for (const driver of filtered.sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''))) {
+                const media = await resolveDriverMedia(driver);
+
+                const created = driver.createdAt ? new Date(driver.createdAt).toLocaleString() : 'N/A';
+                const hasMedia = !!(media.licenseFront && media.licenseBack && media.selfie);
+                const avatarSrc = media.profilePhoto || media.selfie || '';
+                const initials = `${safeText(driver.fullName || driver.email || 'D')}`.trim().split(/\s+/).filter(Boolean).slice(0, 2).map((p) => p[0].toUpperCase()).join('') || 'D';
+                const isApproved = (driver.approved === undefined) ? true : !!driver.approved;
+
+                const card = document.createElement('div');
+                card.className = 'col-lg-6 col-md-6 mb-4';
+                card.innerHTML = `
+                    <div class="card driver-card" style="cursor: pointer;" data-driver-id="${safeText(driver.id)}">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="d-flex align-items-start">
+                                    ${avatarSrc ? `<img src="${avatarSrc}" class="rounded-circle border" alt="Driver" style="width: 44px; height: 44px; object-fit: cover;">` : `<div class="driver-welcome-initials" style="width: 44px; height: 44px; font-size: 0.9rem;">${initials}</div>`}
+                                    <div class="ms-3">
+                                        <h5 class="mb-1">${safeText(driver.fullName || 'Driver')}</h5>
+                                        <div class="text-muted small">Registered: ${safeText(created)}</div>
+                                    </div>
+                                </div>
+                                <span class="badge ${hasMedia ? 'bg-success' : 'bg-warning text-dark'}">${hasMedia ? 'Verified Media' : 'Missing Media'}</span>
+                            </div>
+
+                            <div class="mt-3">
+                                <div><strong>Email:</strong> ${safeText(driver.email)}</div>
+                                <div><strong>Phone:</strong> ${safeText(driver.phone)}</div>
+                                <div class="d-flex align-items-center mt-2">
+                                    <span class="badge ${isApproved ? 'bg-success' : 'bg-secondary'} me-2">${isApproved ? 'Approved' : 'Pending Approval'}</span>
+                                    <div class="form-check form-switch mb-0">
+                                        <input class="form-check-input" type="checkbox" role="switch" ${isApproved ? 'checked' : ''} data-approve-driver-id="${safeText(driver.id)}" onclick="event.stopPropagation();">
+                                        <label class="form-check-label small text-muted">Allow Orders</label>
+                                    </div>
+                                </div>
+                                <div class="text-muted small mt-1">Login: email or phone • Password: stored securely</div>
+                                <div class="mt-2">
+                                    <button type="button" class="btn btn-sm btn-outline-primary me-2" data-reset-driver-id="${safeText(driver.id)}" data-reset-driver-name="${safeText(driver.fullName || 'Driver')}">
+                                        <i class="fas fa-key me-1" aria-hidden="true"></i>
+                                        Reset Password
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-outline-success" data-message-driver-id="${safeText(driver.id)}" data-message-driver-name="${safeText(driver.fullName || 'Driver')}">
+                                        <i class="fas fa-comment me-1" aria-hidden="true"></i>
+                                        Message
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="row g-2 mt-3">
+                                <div class="col-4">
+                                    <img src="${media.licenseFront || ''}" class="img-thumbnail w-100" style="cursor: pointer;" data-media-src="${media.licenseFront || ''}" data-media-title="License Front" alt="License front">
+                                    <div class="text-center small mt-1">License Front</div>
+                                </div>
+                                <div class="col-4">
+                                    <img src="${media.licenseBack || ''}" class="img-thumbnail w-100" style="cursor: pointer;" data-media-src="${media.licenseBack || ''}" data-media-title="License Back" alt="License back">
+                                    <div class="text-center small mt-1">License Back</div>
+                                </div>
+                                <div class="col-4">
+                                    <img src="${media.selfie || ''}" class="img-thumbnail w-100" style="cursor: pointer;" data-media-src="${media.selfie || ''}" data-media-title="Selfie" alt="Selfie">
+                                    <div class="text-center small mt-1">Selfie</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                driversListEl.appendChild(card);
+            }
+        };
+
+        if (driverSearchEl) {
+            driverSearchEl.addEventListener('input', () => {
+                renderDrivers();
+            });
+        }
+
+        // Initialize modals
+        const driverDetailModal = new bootstrap.Modal(document.getElementById('driverDetailModal'));
+        const driverMessageModal = new bootstrap.Modal(document.getElementById('driverMessageModal'));
+        let currentDriverId = null;
+        let currentDriverName = '';
+
+        // Message storage
+        const getMessages = (driverId) => {
+            const key = `speedy_messages_${driverId}`;
+            try {
+                return JSON.parse(localStorage.getItem(key) || '[]');
+            } catch {
+                return [];
+            }
+        };
+
+        const saveMessage = (driverId, message) => {
+            const key = `speedy_messages_${driverId}`;
+            const messages = getMessages(driverId);
+            messages.push({
+                id: Date.now(),
+                text: message,
+                sender: 'admin',
+                timestamp: new Date().toISOString(),
+                read: false
+            });
+            localStorage.setItem(key, JSON.stringify(messages));
+        };
+
+        const renderMessages = (driverId) => {
+            const messages = getMessages(driverId);
+            const messageHistory = document.getElementById('messageHistory');
+            
+            if (messages.length === 0) {
+                messageHistory.innerHTML = '<div class="text-center text-muted">No messages yet</div>';
+                return;
+            }
+
+            messageHistory.innerHTML = messages.map(msg => `
+                <div class="mb-2 p-2 rounded ${msg.sender === 'admin' ? 'bg-primary text-white ms-5' : 'bg-white me-5'}">
+                    <div class="small mb-1"><strong>${msg.sender === 'admin' ? 'Admin' : 'Driver'}</strong></div>
+                    <div>${msg.text}</div>
+                    <div class="small opacity-75">${new Date(msg.timestamp).toLocaleString()}</div>
+                </div>
+            `).join('');
+            
+            messageHistory.scrollTop = messageHistory.scrollHeight;
+        };
+
+        document.addEventListener('change', (e) => {
+            const target = e.target;
+            if (!(target instanceof HTMLElement)) return;
+
+            const approveToggle = target.closest('input[type="checkbox"][data-approve-driver-id]');
+            if (approveToggle && approveToggle instanceof HTMLInputElement) {
+                e.stopPropagation();
+                const driverId = approveToggle.getAttribute('data-approve-driver-id');
+                const approved = !!approveToggle.checked;
+                if (typeof speedyGetDrivers === 'function' && typeof speedySaveDrivers === 'function') {
+                    const drivers = speedyGetDrivers();
+                    const idx = drivers.findIndex((d) => d && d.id === driverId);
+                    if (idx !== -1) {
+                        drivers[idx] = { ...drivers[idx], approved };
+                        speedySaveDrivers(drivers);
+                        renderDrivers();
+                    }
+                }
+                return;
+            }
+        });
+
+        document.addEventListener('click', (e) => {
+            const target = e.target;
+            if (!(target instanceof HTMLElement)) return;
+
+            // Handle message button click
+            const messageBtn = target.closest('[data-message-driver-id]');
+            if (messageBtn) {
+                e.preventDefault();
+                e.stopPropagation();
+                const driverId = messageBtn.getAttribute('data-message-driver-id');
+                const driverName = messageBtn.getAttribute('data-message-driver-name');
+                currentDriverId = driverId;
+                currentDriverName = driverName;
+                showMessageModal(driverId, driverName);
+                return;
+            }
+
+            // Handle reset password button click
+            const resetBtn = target.closest('[data-reset-driver-id]');
+            if (resetBtn && resetModal) {
+                e.preventDefault();
+                e.stopPropagation();
+                const id = resetBtn.getAttribute('data-reset-driver-id');
+                const nm = resetBtn.getAttribute('data-reset-driver-name') || '';
+                if (resetIdEl) resetIdEl.value = id || '';
+                if (resetNameEl) resetNameEl.textContent = nm ? `Driver: ${nm}` : '';
+                if (resetPwdEl) resetPwdEl.value = '';
+                if (resetPwd2El) resetPwd2El.value = '';
+                if (resetAlertEl) resetAlertEl.innerHTML = '';
+                resetModal.show();
+                return;
+            }
+
+            // Handle driver card click
+            const driverCard = target.closest('.driver-card');
+            if (driverCard) {
+                const driverId = driverCard.getAttribute('data-driver-id');
+                const drivers = typeof speedyGetDrivers === 'function' ? speedyGetDrivers() : [];
+                const driver = drivers.find(d => d.id === driverId);
+                
+                if (driver) {
+                    currentDriverId = driverId;
+                    currentDriverName = driver.fullName || 'Driver';
+                    showDriverDetail(driver);
+                }
+                return;
+            }
+
+            const src = target.getAttribute('data-media-src');
+            if (!src) return;
+            const title = target.getAttribute('data-media-title') || 'Driver Media';
+            document.getElementById('driverMediaModalLabel').textContent = title;
+            driverMediaModalImg.src = src;
+            driverMediaModal.show();
+        });
+
+        if (resetSaveBtn) {
+            resetSaveBtn.addEventListener('click', async () => {
+                if (!resetIdEl || !resetPwdEl || !resetPwd2El) return;
+                const id = resetIdEl.value;
+                const p1 = resetPwdEl.value;
+                const p2 = resetPwd2El.value;
+
+                if (!p1 || p1.length < 6) {
+                    if (resetAlertEl) resetAlertEl.innerHTML = '<div class="alert alert-warning py-2 mb-3">Password must be at least 6 characters.</div>';
+                    return;
+                }
+                if (p1 !== p2) {
+                    if (resetAlertEl) resetAlertEl.innerHTML = '<div class="alert alert-warning py-2 mb-3">Passwords do not match.</div>';
+                    return;
+                }
+
+                resetSaveBtn.disabled = true;
+                try {
+                    if (typeof speedyAdminResetDriverPassword !== 'function') {
+                        if (resetAlertEl) resetAlertEl.innerHTML = '<div class="alert alert-danger py-2 mb-3">Reset is not available.</div>';
+                        return;
+                    }
+                    const res = await speedyAdminResetDriverPassword(id, p1);
+                    if (!res || !res.ok) {
+                        const msg = (res && res.message) ? res.message : 'Failed to reset password.';
+                        if (resetAlertEl) resetAlertEl.innerHTML = `<div class="alert alert-danger py-2 mb-3">${safeText(msg)}</div>`;
+                        return;
+                    }
+                    if (resetAlertEl) resetAlertEl.innerHTML = '<div class="alert alert-success py-2 mb-3">Password reset successfully.</div>';
+                    setTimeout(() => {
+                        try { resetModal.hide(); } catch { }
+                    }, 500);
+                } finally {
+                    resetSaveBtn.disabled = false;
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderDrivers();
+        });
+
+        // Show driver detail modal
+        const showDriverDetail = async (driver) => {
+            const media = await resolveDriverMedia(driver);
+            const created = driver.createdAt ? new Date(driver.createdAt).toLocaleString() : 'N/A';
+            const hasMedia = !!(media.licenseFront && media.licenseBack && media.selfie);
+            const avatarSrc = media.profilePhoto || media.selfie || '';
+            const initials = `${safeText(driver.fullName || driver.email || 'D')}`.trim().split(/\s+/).filter(Boolean).slice(0, 2).map((p) => p[0].toUpperCase()).join('') || 'D';
+
+            document.getElementById('driverDetailModalBody').innerHTML = `
+                <div class="row">
+                    <div class="col-md-4 text-center">
+                        ${avatarSrc ? `<img src="${avatarSrc}" class="rounded-circle border mb-3" alt="Driver" style="width: 120px; height: 120px; object-fit: cover;">` : `<div class="driver-welcome-initials mx-auto mb-3" style="width: 120px; height: 120px; font-size: 2rem;">${initials}</div>`}
+                        <h5>${safeText(driver.fullName || 'Driver')}</h5>
+                        <span class="badge ${hasMedia ? 'bg-success' : 'bg-warning text-dark'}">${hasMedia ? 'Verified' : 'Pending Verification'}</span>
+                    </div>
+                    <div class="col-md-8">
+                        <h6>Contact Information</h6>
+                        <table class="table table-sm">
+                            <tr><td><strong>Email:</strong></td><td>${safeText(driver.email)}</td></tr>
+                            <tr><td><strong>Phone:</strong></td><td>${safeText(driver.phone)}</td></tr>
+                            <tr><td><strong>Home Address:</strong></td><td>${safeText(driver.homeAddress || 'Not provided')}</td></tr>
+                            <tr><td><strong>Registered:</strong></td><td>${created}</td></tr>
+                        </table>
+                        
+                        <h6 class="mt-4">Verification Documents</h6>
+                        <div class="row g-2">
+                            <div class="col-4">
+                                <img src="${media.licenseFront || ''}" class="img-thumbnail w-100" style="cursor: pointer; height: 80px; object-fit: cover;" data-media-src="${media.licenseFront || ''}" data-media-title="License Front" alt="License front">
+                                <div class="text-center small mt-1">License Front</div>
+                            </div>
+                            <div class="col-4">
+                                <img src="${media.licenseBack || ''}" class="img-thumbnail w-100" style="cursor: pointer; height: 80px; object-fit: cover;" data-media-src="${media.licenseBack || ''}" data-media-title="License Back" alt="License back">
+                                <div class="text-center small mt-1">License Back</div>
+                            </div>
+                            <div class="col-4">
+                                <img src="${media.selfie || ''}" class="img-thumbnail w-100" style="cursor: pointer; height: 80px; object-fit: cover;" data-media-src="${media.selfie || ''}" data-media-title="Selfie" alt="Selfie">
+                                <div class="text-center small mt-1">Selfie</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            driverDetailModal.show();
+        };
+
+        // Show message modal
+        const showMessageModal = (driverId, driverName) => {
+            document.getElementById('messageDriverInfo').innerHTML = `
+                <div class="alert alert-info">
+                    <i class="fas fa-comment me-2"></i>
+                    <strong>Messaging:</strong> ${safeText(driverName)}
+                </div>
+            `;
+            renderMessages(driverId);
+            driverMessageModal.show();
+        };
+
+        // Send message functionality
+        document.getElementById('sendMessageBtn').addEventListener('click', () => {
+            const messageInput = document.getElementById('messageInput');
+            const message = messageInput.value.trim();
+            
+            if (message && currentDriverId) {
+                saveMessage(currentDriverId, message);
+                renderMessages(currentDriverId);
+                messageInput.value = '';
+            }
+        });
+
+        // Send message on Enter key
+        document.getElementById('messageInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                document.getElementById('sendMessageBtn').click();
+            }
+        });
+
+        // Message driver from detail modal
+        document.getElementById('messageDriverBtn').addEventListener('click', () => {
+            if (currentDriverId && currentDriverName) {
+                driverDetailModal.hide();
+                showMessageModal(currentDriverId, currentDriverName);
+            }
+        });
+
+        // Section navigation functionality
+        const showSection = (sectionName) => {
+            // Hide all sections
+            document.querySelectorAll('.admin-section').forEach(section => {
+                section.style.display = 'none';
+            });
+            
+            // Remove active class from all tabs
+            document.querySelectorAll('.nav-link').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected section
+            const targetSection = document.getElementById(sectionName + '-section');
+            if (targetSection) {
+                targetSection.style.display = 'block';
+            }
+            
+            // Add active class to selected tab
+            const targetTab = document.getElementById(sectionName + '-tab');
+            if (targetTab) {
+                targetTab.classList.add('active');
+            }
+            
+            // Load section-specific data
+            if (sectionName === 'drivers') {
+                renderDrivers();
+            } else if (sectionName === 'orders') {
+                refreshOrders();
+            } else if (sectionName === 'analytics') {
+                updateAnalytics();
+            }
+        };
+
+        // Update analytics data
+        const updateAnalytics = () => {
+            const drivers = typeof speedyGetDrivers === 'function' ? speedyGetDrivers() : [];
+            const orders = typeof speedyGetOrders === 'function' ? speedyGetOrders() : [];
+            
+            document.getElementById('analytics-active-drivers').textContent = drivers.length;
+            document.getElementById('analytics-total-orders').textContent = orders.length;
+            
+            const pendingOrders = orders.filter(order => 
+                order.status && !order.status.includes('Delivered')
+            ).length;
+            document.getElementById('analytics-pending-orders').textContent = pendingOrders;
+            
+            const today = new Date().toDateString();
+            const completedToday = orders.filter(order => 
+                order.status && order.status.includes('Delivered') && 
+                new Date(order.timestamp || order.createdAt || '').toDateString() === today
+            ).length;
+            document.getElementById('analytics-completed-today').textContent = completedToday;
+        };
+
+        // Make showSection globally available
+        window.showSection = showSection;
+
+        renderDrivers();
+    </script>
+</body>
+</html>

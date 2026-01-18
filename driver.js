@@ -4,6 +4,213 @@ let filteredOrders = new Map();
 let lastOrderCount = 0;
 let isInitialLoad = true;
 
+// Role detection helper
+const speedyIsAdmin = () => {
+    try {
+        if (typeof speedyGetSession !== 'function') return false;
+        const session = speedyGetSession();
+        return !!(session && session.role === 'admin');
+    } catch (e) {
+        return false;
+    }
+};
+
+const speedyCompressImageFile = (file, maxDim = 640, quality = 0.82) => {
+    return new Promise((resolve, reject) => {
+        try {
+            const reader = new FileReader();
+            reader.onerror = () => reject(new Error('Read failed'));
+            reader.onload = () => {
+                const img = new Image();
+                img.onerror = () => reject(new Error('Image load failed'));
+                img.onload = () => {
+                    let { width, height } = img;
+                    const scale = Math.min(1, maxDim / Math.max(width, height));
+                    width = Math.max(1, Math.round(width * scale));
+                    height = Math.max(1, Math.round(height * scale));
+
+                    const canvas = document.createElement('canvas');
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    resolve(canvas.toDataURL('image/jpeg', quality));
+                };
+                img.src = String(reader.result);
+            };
+            reader.readAsDataURL(file);
+        } catch (e) {
+            reject(e);
+        }
+    });
+};
+
+const speedyResolveDriverAvatar = async (profile) => {
+    try {
+        if (!profile) return null;
+        if (profile.profilePhoto) return profile.profilePhoto;
+        if (profile.mediaId && typeof speedyGetDriverMedia === 'function') {
+            const media = await speedyGetDriverMedia(profile.mediaId);
+            if (media && media.profilePhoto) return media.profilePhoto;
+        }
+        if (profile.selfie) return profile.selfie;
+        if (profile.mediaId && typeof speedyGetDriverMedia === 'function') {
+            const media = await speedyGetDriverMedia(profile.mediaId);
+            if (media && media.selfie) return media.selfie;
+        }
+        return null;
+    } catch {
+        return null;
+    }
+};
+
+const speedyGetDriverProfile = () => {
+    try {
+        if (typeof speedyGetSession !== 'function') return null;
+        const session = speedyGetSession();
+        if (!session || session.role !== 'driver') return null;
+
+        if (typeof speedyGetDrivers !== 'function') return null;
+        const drivers = speedyGetDrivers();
+        if (!Array.isArray(drivers)) return null;
+
+        if (session.driverId) {
+            const byId = drivers.find((d) => d && d.id === session.driverId);
+            if (byId) return byId;
+        }
+
+        const email = (session.username || '').toString().trim().toLowerCase();
+        const byEmail = drivers.find((d) => (d && (d.email || '').toString().trim().toLowerCase() === email));
+        return byEmail || null;
+    } catch {
+        return null;
+    }
+};
+
+const speedyInitDriverWelcome = async () => {
+    const nameEl = document.getElementById('driver-welcome-name');
+    const subtitleEl = document.getElementById('driver-welcome-subtitle');
+    const avatarEl = document.getElementById('driver-welcome-avatar');
+    const initialsEl = document.getElementById('driver-welcome-initials');
+    const identifierEl = document.getElementById('driver-welcome-identifier');
+
+    const profile = speedyGetDriverProfile();
+    if (!profile) return;
+
+    if (nameEl) {
+        nameEl.textContent = profile.fullName || 'Driver';
+    }
+
+    if (identifierEl) {
+        const identifier = profile.email || profile.phone;
+        if (identifier) {
+            identifierEl.textContent = `Signed in as ${identifier}`;
+            identifierEl.style.display = 'block';
+        }
+    }
+
+    if (subtitleEl) {
+        const hr = new Date().getHours();
+        const part = hr < 12 ? 'morning' : hr < 18 ? 'afternoon' : 'evening';
+        subtitleEl.textContent = `Good ${part} — ready for deliveries`; 
+    }
+
+    const avatar = await speedyResolveDriverAvatar(profile);
+    if (avatarEl && avatar) {
+        avatarEl.src = avatar;
+        avatarEl.style.display = 'block';
+        if (initialsEl) initialsEl.style.display = 'none';
+        return;
+    }
+
+    if (initialsEl) {
+        const parts = (profile.fullName || profile.email || 'Driver').trim().split(/\s+/).filter(Boolean);
+        const initials = parts.slice(0, 2).map((p) => p[0].toUpperCase()).join('');
+        initialsEl.textContent = initials || 'D';
+        initialsEl.style.display = 'flex';
+    }
+};
+
+const speedyInitDriverProfileSection = async () => {
+    const profile = speedyGetDriverProfile();
+    if (!profile) return;
+
+    const nameEl = document.getElementById('driver-profile-name');
+    const emailEl = document.getElementById('driver-profile-email');
+    const phoneEl = document.getElementById('driver-profile-phone');
+    const photoEl = document.getElementById('driver-profile-photo');
+    const initialsEl = document.getElementById('driver-profile-initials');
+    const inputEl = document.getElementById('driver-profile-photo-input');
+    const saveBtn = document.getElementById('driver-profile-photo-save');
+    const alertEl = document.getElementById('driver-profile-alert');
+    const statusEl = document.getElementById('driver-profile-status');
+
+    if (nameEl) nameEl.textContent = profile.fullName || '—';
+    if (emailEl) emailEl.textContent = profile.email || '—';
+    if (phoneEl) phoneEl.textContent = profile.phone || '—';
+
+    const setAlert = (message, type) => {
+        if (!alertEl) return;
+        alertEl.innerHTML = `
+            <div class="alert alert-${type} py-2 mb-3" role="alert">${message}</div>
+        `;
+    };
+
+    const avatar = await speedyResolveDriverAvatar(profile);
+    if (photoEl && avatar) {
+        photoEl.src = avatar;
+        photoEl.style.display = 'block';
+        if (initialsEl) initialsEl.style.display = 'none';
+    } else if (initialsEl) {
+        const parts = (profile.fullName || profile.email || 'Driver').trim().split(/\s+/).filter(Boolean);
+        const initials = parts.slice(0, 2).map((p) => p[0].toUpperCase()).join('');
+        initialsEl.textContent = initials || 'D';
+        initialsEl.style.display = 'flex';
+        if (photoEl) photoEl.style.display = 'none';
+    }
+
+    if (!inputEl || !saveBtn) return;
+
+    saveBtn.addEventListener('click', async () => {
+        try {
+            if (!inputEl.files || !inputEl.files[0]) {
+                setAlert('Choose a photo first.', 'warning');
+                return;
+            }
+
+            saveBtn.disabled = true;
+            if (statusEl) statusEl.textContent = 'Saving...';
+
+            const dataUrl = await speedyCompressImageFile(inputEl.files[0], 640, 0.82);
+            if (photoEl) {
+                photoEl.src = dataUrl;
+                photoEl.style.display = 'block';
+            }
+            if (initialsEl) initialsEl.style.display = 'none';
+
+            if (typeof speedyUpdateDriverProfilePhoto === 'function') {
+                const res = await speedyUpdateDriverProfilePhoto({ driverId: profile.id, profilePhoto: dataUrl });
+                if (!res || !res.ok) {
+                    setAlert((res && res.message) ? res.message : 'Failed to save profile photo.', 'danger');
+                    return;
+                }
+            }
+
+            setAlert('Profile photo updated.', 'success');
+            inputEl.value = '';
+            if (statusEl) statusEl.textContent = 'Saved';
+            speedyInitDriverWelcome();
+        } catch {
+            setAlert('Failed to save profile photo.', 'danger');
+        } finally {
+            saveBtn.disabled = false;
+            setTimeout(() => {
+                if (statusEl) statusEl.textContent = '';
+            }, 1200);
+        }
+    });
+};
+
 // Essential shared variables and functions
 let orders = new Map();
 
@@ -77,6 +284,10 @@ const loadOrders = () => {
 
 // COMPREHENSIVE DATA INTEGRITY TEST FUNCTION
 const testDataIntegrity = () => {
+    if (!speedyIsAdmin()) {
+        console.warn('Not authorized: admin role required');
+        return;
+    }
     console.log("🔍 COMPREHENSIVE DATA INTEGRITY TEST");
     console.log("=====================================");
     
@@ -100,7 +311,7 @@ const testDataIntegrity = () => {
                 console.log(`  ✓ Timestamp: ${order.timestamp || 'MISSING'}`);
                 
                 // Check data completeness
-                const isComplete = order.customerName && order.customerPhone && 
+                const isComplete = order.customerName && order.customerPhone && order.customerAddress && 
                                  order.storeName && order.items && order.status;
                 console.log(`  ✓ Data Complete: ${isComplete ? '✅ YES' : '❌ NO'}`);
             });
@@ -375,10 +586,25 @@ const initDriverPortal = () => {
 document.addEventListener("DOMContentLoaded", () => {
     console.log("🚚 Initializing Enhanced Driver Portal with Real-Time Updates");
     
+    speedyInitDriverWelcome();
+    speedyInitDriverProfileSection();
+
+    const profile = speedyGetDriverProfile();
+    const isApproved = profile ? (profile.approved === undefined ? true : !!profile.approved) : true;
+    const approvalBanner = document.getElementById('driver-approval-banner');
+    const ordersSection = document.getElementById('driver-orders');
+    if (!isApproved) {
+        if (approvalBanner) approvalBanner.style.display = 'block';
+        if (ordersSection) ordersSection.style.display = 'none';
+        const totalEl = document.getElementById('total-orders');
+        if (totalEl) totalEl.textContent = '0';
+        return;
+    }
+    
     // Initial load
-            loadOrders();
+    loadOrders();
     renderOrders(true); // Show loading on initial load
-            updateOrderStats();
+    updateOrderStats();
     
     // Setup photo upload preview
     setupPhotoUpload();
@@ -447,7 +673,7 @@ const setupRealTimeMonitoring = () => {
     if (typeof BroadcastChannel !== 'undefined') {
         const channel = new BroadcastChannel('speedyDeliveryChannel');
         channel.onmessage = (event) => {
-                console.log("📢 Broadcast message received:", event.data);
+            console.log("📢 Broadcast message received:", event.data);
             
             if (event.data.type === 'newOrder') {
                 setTimeout(() => {
@@ -579,7 +805,7 @@ const showNewOrderNotification = (referenceNumber) => {
                 <p class="mb-1"><strong>Customer:</strong> ${order.customerName || 'N/A'}</p>
                 <p class="mb-1"><strong>Phone:</strong> <a href="tel:${order.customerPhone || ''}" class="text-decoration-none text-primary">${order.customerPhone || 'N/A'}</a></p>
                 <p class="mb-1"><strong>Store:</strong> ${order.storeName}</p>
-                <p class="mb-0"><strong>Items:</strong> ${order.items.slice(0, 2).join(", ")}${order.items.length > 2 ? '...' : ''}</p>
+                <p class="mb-1"><strong>Items:</strong> ${order.items.slice(0, 2).join(", ")}${order.items.length > 2 ? '...' : ''}</p>
             </div>
         </div>
         <button type="button" class="btn-close" onclick="this.parentElement.remove()"></button>
@@ -644,33 +870,33 @@ const renderOrders = (showLoading = false) => {
     applyFilters();
     
     // Hide loading immediately (no delay)
-        if (ordersLoading) {
-            ordersLoading.style.display = "none";
-        }
+    if (ordersLoading) {
+        ordersLoading.style.display = "none";
+    }
         
     // Handle empty state
-        if (filteredOrders.size === 0) {
-            if (ordersEmpty) {
-                ordersEmpty.style.display = "block";
-            }
-        orderList.innerHTML = ""; // Clear only when empty
-            return;
-        }
-        
+    if (filteredOrders.size === 0) {
         if (ordersEmpty) {
-            ordersEmpty.style.display = "none";
+            ordersEmpty.style.display = "block";
         }
+        orderList.innerHTML = ""; // Clear only when empty
+        return;
+    }
         
-        // Sort orders by timestamp (newest first)
-        const sortedOrders = Array.from(filteredOrders.entries()).sort((a, b) => {
-            return new Date(b[1].timestamp) - new Date(a[1].timestamp);
-        });
+    if (ordersEmpty) {
+        ordersEmpty.style.display = "none";
+    }
+        
+    // Sort orders by timestamp (newest first)
+    const sortedOrders = Array.from(filteredOrders.entries()).sort((a, b) => {
+        return new Date(b[1].timestamp) - new Date(a[1].timestamp);
+    });
         
     // Smart update: only rebuild if content actually changed
     const newContent = sortedOrders.map(([referenceNumber, order]) => {
         return createOrderCard(order).outerHTML;
     }).join('');
-    
+        
     // Only update if content is different (prevents unnecessary flickering)
     if (orderList.innerHTML !== newContent) {
         orderList.innerHTML = newContent;
@@ -678,7 +904,7 @@ const renderOrders = (showLoading = false) => {
     } else {
         console.log(`📊 ${sortedOrders.length} orders (no changes)`);
     }
-    
+        
     // Update data integrity status after rendering
     updateDataIntegrityStatus();
 };
@@ -687,10 +913,10 @@ const renderOrders = (showLoading = false) => {
 const createOrderCard = (order) => {
     const card = document.createElement("div");
     card.className = "col-lg-6 col-md-6 mb-4";
-    
+        
     const statusClass = getStatusClass(order.status);
     const statusIcon = getStatusIcon(order.status);
-    
+        
     card.innerHTML = `
         <div class="card animate-on-scroll">
             <div class="card-body">
@@ -701,17 +927,18 @@ const createOrderCard = (order) => {
                     </h5>
                     <span class="order-reference">${order.referenceNumber}</span>
                 </div>
-                
+                    
                 <div class="status-badge ${statusClass}">
                     <i class="fas fa-${statusIcon} me-2" aria-hidden="true"></i>
                     ${order.status}
                 </div>
-                
+                    
                 <div class="order-info">
                     <div class="row">
                         <div class="col-md-6">
                             <p><strong><i class="fas fa-user me-1" aria-hidden="true"></i>Customer:</strong> ${order.customerName || 'N/A'}</p>
                             <p><strong><i class="fas fa-phone me-1" aria-hidden="true"></i>Phone:</strong> <a href="tel:${order.customerPhone || ''}" class="text-decoration-none text-primary">${order.customerPhone || 'N/A'}</a></p>
+                            <p><strong><i class="fas fa-home me-1" aria-hidden="true"></i>Address:</strong> ${order.customerAddress || 'N/A'}</p>
                             <p><strong><i class="fas fa-store me-1" aria-hidden="true"></i>Store:</strong> ${order.storeName}</p>
                             <p><strong><i class="fas fa-clock me-1" aria-hidden="true"></i>Order Time:</strong> ${new Date(order.timestamp).toLocaleString()}</p>
                         </div>
@@ -723,21 +950,21 @@ const createOrderCard = (order) => {
                         </div>
                     </div>
                 </div>
-                
+                    
                 <div class="order-items">
                     <h6><i class="fas fa-list me-2" aria-hidden="true"></i>Items to Collect:</h6>
                     <ul class="item-list">
                         ${order.items.map(item => `<li><i class="fas fa-chevron-right me-2 text-muted" aria-hidden="true"></i>${item}</li>`).join('')}
                     </ul>
                 </div>
-                
+                    
                 ${order.customRequest ? `
                     <div class="order-items">
                         <h6><i class="fas fa-comment me-2" aria-hidden="true"></i>Special Instructions:</h6>
                         <p class="mb-0">${order.customRequest}</p>
                     </div>
                 ` : ''}
-                
+                    
                 <div class="order-actions">
                     <button class="btn btn-info btn-sm" onclick="showOrderDetails('${order.referenceNumber}')">
                         <i class="fas fa-eye me-2" aria-hidden="true"></i>
@@ -748,7 +975,7 @@ const createOrderCard = (order) => {
             </div>
         </div>
     `;
-    
+        
     return card;
 };
 
@@ -763,7 +990,7 @@ const renderActionButtons = (order) => {
         "On the Way to Customer",
         "Delivered"
     ];
-    
+        
     const currentIndex = statuses.indexOf(order.status);
 
     if (currentIndex === statuses.length - 1) {
@@ -774,14 +1001,14 @@ const renderActionButtons = (order) => {
             </div>
         `;
     }
-    
+        
     if (currentIndex === -1) {
         return '<span class="text-muted">Status unknown</span>';
     }
 
     const nextStatus = statuses[currentIndex + 1];
     const buttonConfig = getButtonConfig(nextStatus);
-    
+        
     if (nextStatus === "Delivered") {
         return `
             <button class="btn btn-success btn-sm" onclick="initiateDelivery('${order.referenceNumber}')">
@@ -828,7 +1055,7 @@ const getButtonConfig = (status) => {
             label: "Complete Delivery" 
         }
     };
-    
+        
     return configs[status] || { class: "btn-secondary", icon: "arrow-right", label: "Next Step" };
 };
 
@@ -864,7 +1091,7 @@ const getStatusIcon = (status) => {
 const showOrderDetails = (referenceNumber) => {
     const order = orders.get(referenceNumber);
     if (!order) return;
-    
+        
     // VERIFY ORDER DETAILS DATA INTEGRITY
     console.log("🔍 ORDER DETAILS DATA VERIFICATION:");
     console.log("✓ Reference:", referenceNumber);
@@ -872,10 +1099,10 @@ const showOrderDetails = (referenceNumber) => {
     console.log("✓ Customer Phone:", order.customerPhone);
     console.log("✓ All customer data present:", 
         order.customerName && order.customerPhone ? "✅ YES" : "❌ NO");
-    
+        
     const modalBody = getElement("orderModalBody");
     if (!modalBody) return;
-    
+        
     modalBody.innerHTML = `
         <div class="row">
             <div class="col-md-6">
@@ -893,6 +1120,10 @@ const showOrderDetails = (referenceNumber) => {
                         <tr>
                             <th>Phone:</th>
                             <td><a href="tel:${order.customerPhone || ''}" class="text-decoration-none text-primary">${order.customerPhone || 'N/A'}</a></td>
+                        </tr>
+                        <tr>
+                            <th>Address:</th>
+                            <td>${order.customerAddress || 'N/A'}</td>
                         </tr>
                         <tr>
                             <th>Store:</th>
@@ -941,7 +1172,7 @@ const showOrderDetails = (referenceNumber) => {
                 </table>
             </div>
         </div>
-        
+            
         <div class="row mt-3">
             <div class="col-12">
                 <h6><i class="fas fa-list me-2" aria-hidden="true"></i>Items to Collect</h6>
@@ -950,7 +1181,7 @@ const showOrderDetails = (referenceNumber) => {
                 </ul>
             </div>
         </div>
-        
+            
         ${order.customRequest ? `
             <div class="row mt-3">
                 <div class="col-12">
@@ -961,7 +1192,7 @@ const showOrderDetails = (referenceNumber) => {
                 </div>
             </div>
         ` : ''}
-        
+            
         ${order.deliveryPhoto ? `
             <div class="row mt-3">
                 <div class="col-12">
@@ -970,7 +1201,7 @@ const showOrderDetails = (referenceNumber) => {
                 </div>
             </div>
         ` : ''}
-        
+            
         <!-- DATA INTEGRITY VERIFICATION SECTION -->
         <div class="row mt-3">
             <div class="col-12">
@@ -985,7 +1216,7 @@ const showOrderDetails = (referenceNumber) => {
             </div>
         </div>
     `;
-    
+        
     // Show modal
     const modal = new bootstrap.Modal(document.getElementById('orderModal'));
     modal.show();
@@ -1004,14 +1235,14 @@ const setupPhotoUpload = () => {
     const photoPreview = getElement("photoPreview");
     const previewImage = getElement("previewImage");
     const confirmBtn = getElement("confirmDeliveryBtn");
-    
+        
     if (!photoInput) return;
-    
+        
     photoInput.addEventListener("change", (event) => {
         const file = event.target.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
                 if (previewImage) {
                     previewImage.src = e.target.result;
                 }
@@ -1021,8 +1252,8 @@ const setupPhotoUpload = () => {
                 if (confirmBtn) {
                     confirmBtn.disabled = false;
                 }
-        };
-        reader.readAsDataURL(file);
+            };
+            reader.readAsDataURL(file);
         }
     });
 };
@@ -1031,38 +1262,38 @@ const setupPhotoUpload = () => {
 const confirmDeliveryWithPhoto = () => {
     const photoInput = getElement("deliveryPhoto");
     const confirmBtn = getElement("confirmDeliveryBtn");
-    
+        
     if (!photoInput || !photoInput.files[0]) {
         showAlert("Please select a photo to confirm delivery!", "warning");
         return;
     }
-    
+        
     // Show loading
     confirmBtn.disabled = true;
     confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing...';
-    
+        
     const file = photoInput.files[0];
     const reader = new FileReader();
-    
+        
     reader.onload = function(e) {
         // Update order with photo
         updateOrderStatus(currentOrderRef, "Delivered", e.target.result);
-        
+            
         // Hide modal
         const modal = bootstrap.Modal.getInstance(document.getElementById('photoModal'));
         modal.hide();
-        
+            
         // Reset form
         photoInput.value = '';
         document.getElementById('photoPreview').style.display = 'none';
-        
+            
         // Reset button
         confirmBtn.disabled = false;
         confirmBtn.innerHTML = '<i class="fas fa-check me-2"></i>Confirm Delivery';
-        
+            
         showAlert("Delivery confirmed successfully!", "success");
     };
-    
+        
     reader.readAsDataURL(file);
 };
 
@@ -1070,9 +1301,9 @@ const confirmDeliveryWithPhoto = () => {
 const applyFilters = () => {
     const statusFilter = getElement("status-filter");
     const filterValue = statusFilter ? statusFilter.value : "";
-    
+        
     filteredOrders.clear();
-    
+        
     orders.forEach((order, referenceNumber) => {
         if (!filterValue || order.status === filterValue) {
             filteredOrders.set(referenceNumber, order);
@@ -1091,14 +1322,14 @@ const updateOrderStats = () => {
     const activeOrders = Array.from(orders.values()).filter(order => 
         order.status !== "Delivered" && order.status !== "Cancelled"
     );
-    
+        
     if (totalOrdersElement) {
         totalOrdersElement.textContent = activeOrders.length;
     }
-    
+        
     // Update connection status
     updateConnectionStatus('connected');
-    
+        
     console.log(`📊 Stats updated: ${activeOrders.length} active orders`);
 };
 
@@ -1112,37 +1343,37 @@ const updateOrderStatus = (referenceNumber, newStatus, photo = null) => {
 
     order.status = newStatus;
     order.lastUpdated = new Date().toISOString();
-    
+        
     if (photo) {
         order.deliveryPhoto = photo;
         console.log(`📸 Delivery photo added for order: ${referenceNumber}`);
     }
-    
+        
     // Update estimated delivery for certain statuses
     if (newStatus === "On the Way to Customer") {
         order.estimatedDelivery = new Date(Date.now() + 15 * 60 * 1000).toISOString(); // 15 minutes
     }
-    
+        
     // Mark as completed with timestamp for completed orders
     if (newStatus === "Delivered") {
         order.completedAt = new Date().toISOString();
         order.deliveryConfirmed = true;
         console.log(`✅ Order ${referenceNumber} marked as DELIVERED at ${order.completedAt}`);
     }
-    
+        
     orders.set(referenceNumber, order);
     saveOrders();
-    
+        
     console.log(`📊 Order ${referenceNumber} updated to: ${newStatus}`);
-    
+        
     // AUTOMATED DATA INTEGRITY UPDATE - Real-time monitoring
     console.log(`🔍 AUTOMATED: Triggering data integrity update for status change`);
     updateDataIntegrityStatus();
-    
+        
     // Refresh display
     renderOrders(); // No loading indicator for status updates
     updateOrderStats();
-    
+        
     // Additional logging for completed orders
     if (newStatus === "Delivered") {
         console.log(`🎉 DELIVERY COMPLETED: Order ${referenceNumber} successfully delivered`);
@@ -1166,14 +1397,14 @@ const saveOrders = () => {
 const handleOrdersUpdated = (event) => {
     console.log("🔔 AUTOMATED: Orders updated event handler called:", event.detail);
     updateConnectionStatus('updating');
-    
+        
     setTimeout(() => {
         loadOrders();
-        
+            
         // AUTOMATED DATA INTEGRITY UPDATE - Orders updated event
         console.log(`🔍 AUTOMATED: Triggering data integrity update for orders updated event`);
         updateDataIntegrityStatus();
-        
+            
         renderOrders(); // No loading indicator for event-driven updates
         updateOrderStats();
         checkForNewOrders();
@@ -1185,7 +1416,7 @@ const handleOrdersUpdated = (event) => {
 const handleNewOrderPlaced = (event) => {
     console.log("🎯 New order event handler called:", event.detail);
     updateConnectionStatus('updating');
-    
+        
     setTimeout(() => {
         loadOrders();
         renderOrders(); // No loading indicator for new order events
@@ -1201,46 +1432,46 @@ const handleNewOrderPlaced = (event) => {
 // Enhanced refresh function with comprehensive feedback
 const refreshOrders = () => {
     console.log("🔄 Starting comprehensive order refresh");
-    
+        
     // Show syncing status
     updateConnectionStatus('updating');
-    
+        
     // Show loading state
     const ordersLoading = getElement("orders-loading");
     const orderList = getElement("order-list");
-    
+        
     if (ordersLoading) {
         ordersLoading.style.display = "block";
     }
-    
+        
     // Show temporary loading notification
     showAlert("🔄 Refreshing orders from server...", "info");
-    
+        
     // Force reload from storage
     loadOrders();
-    
+        
     // Wait a moment then render everything
     setTimeout(() => {
         renderOrders(true); // Show loading indicator only for manual refresh
         updateOrderStats();
         checkForNewOrders();
-        
+            
         // AUTOMATED DATA INTEGRITY UPDATE - Manual refresh
         console.log(`🔍 AUTOMATED: Triggering data integrity update for manual refresh`);
         updateDataIntegrityStatus();
-        
+            
         // Hide loading state
         if (ordersLoading) {
             ordersLoading.style.display = "none";
         }
-        
+            
         // Update connection status back to connected
         updateConnectionStatus('connected');
-        
+            
         // Show success notification
         const currentTime = new Date().toLocaleTimeString();
         showAlert(`✅ Orders refreshed successfully at ${currentTime}`, "success");
-        
+            
         console.log("✅ Order refresh completed successfully");
     }, 500);
 };
@@ -1250,14 +1481,14 @@ const showAlert = (message, type = "info") => {
     // Remove existing alerts
     const existingAlerts = document.querySelectorAll('.temp-alert');
     existingAlerts.forEach(alert => alert.remove());
-    
+        
     const alertHtml = `
         <div class="alert alert-${type} alert-dismissible fade show temp-alert" role="alert">
             ${message}
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     `;
-    
+        
     // Create temporary alert at top of page
     const tempAlert = document.createElement('div');
     tempAlert.innerHTML = alertHtml;
@@ -1268,12 +1499,12 @@ const showAlert = (message, type = "info") => {
     tempAlert.style.minWidth = '300px';
     tempAlert.style.maxWidth = '400px';
     document.body.appendChild(tempAlert);
-    
+        
     // Auto-remove after 3 seconds for success/info, 5 seconds for others
     const timeout = ['success', 'info'].includes(type) ? 3000 : 5000;
     setTimeout(() => {
         if (tempAlert.parentNode) {
-        tempAlert.remove();
+            tempAlert.remove();
         }
     }, timeout);
 };
@@ -1299,7 +1530,7 @@ const updateConnectionStatus = (status = 'connected') => {
     const connectionStatus = getElement("connection-status");
     const connectionText = getElement("connection-text");
     const lastUpdateText = getElement("last-update-text");
-    
+        
     if (connectionStatus && connectionText) {
         if (status === 'connected') {
             connectionStatus.textContent = '🟢';
@@ -1315,7 +1546,7 @@ const updateConnectionStatus = (status = 'connected') => {
             connectionText.className = 'status-text text-danger';
         }
     }
-    
+        
     if (lastUpdateText) {
         const now = new Date();
         const timeStr = now.toLocaleTimeString();
@@ -1328,36 +1559,36 @@ let dataIntegrityMonitorInterval = null;
 
 const startAutomatedDataIntegrityMonitoring = () => {
     console.log("🤖 Starting automated background data integrity monitoring...");
-    
+        
     // Clear any existing interval
     if (dataIntegrityMonitorInterval) {
         clearInterval(dataIntegrityMonitorInterval);
     }
-    
+        
     // Update immediately
     updateDataIntegrityStatus();
-    
+        
     // Set up automated monitoring every 10 seconds
     dataIntegrityMonitorInterval = setInterval(() => {
         console.log("🤖 AUTOMATED: Background data integrity check running...");
         updateDataIntegrityStatus();
-        
+            
         // Also update connection status
         updateConnectionStatus('connected');
-        
+            
         // Log current status for debugging
         const totalOrders = orders.size;
         let completeData = 0;
         orders.forEach((order) => {
-            if (order.customerName && order.customerPhone && order.storeName && order.items) {
+            if (order.customerName && order.customerPhone && order.customerAddress && order.storeName && order.items) {
                 completeData++;
             }
         });
-        
+            
         console.log(`🤖 AUTOMATED MONITOR: ${completeData}/${totalOrders} orders have complete data`);
-        
+            
     }, 10000); // Every 10 seconds
-    
+        
     console.log("✅ Automated data integrity monitoring started (every 10 seconds)");
 };
 
@@ -1376,15 +1607,16 @@ const updateDataIntegrityStatus = () => {
     let incompleteData = 0;
     let deliveredOrders = 0;
     let activeOrders = 0;
-    
+        
     orders.forEach((order) => {
         // Check if order has complete customer data
-        if (order.customerName && order.customerPhone && order.storeName && order.items) {
+        if (order.customerName && order.customerPhone && order.customerAddress && 
+            order.storeName && order.items && order.status) {
             completeData++;
         } else {
             incompleteData++;
         }
-        
+            
         // Track delivery status
         if (order.status === "Delivered") {
             deliveredOrders++;
@@ -1392,11 +1624,11 @@ const updateDataIntegrityStatus = () => {
             activeOrders++;
         }
     });
-    
+        
     // Update header status
     const dataIntegrityStatus = getElement("data-integrity-status");
     const dataIntegrityText = getElement("data-integrity-text");
-    
+        
     if (dataIntegrityStatus && dataIntegrityText) {
         if (incompleteData === 0 && totalOrders > 0) {
             dataIntegrityStatus.textContent = "✅";
@@ -1409,43 +1641,43 @@ const updateDataIntegrityStatus = () => {
             dataIntegrityText.textContent = "No Data";
         }
     }
-    
+        
     // Update integrity panel badges with enhanced information
     const totalOrdersTracked = getElement("total-orders-tracked");
     const completeDataCount = getElement("complete-data-count");
     const incompleteDataCount = getElement("incomplete-data-count");
     const lastIntegrityCheck = getElement("last-integrity-check");
-    
+        
     if (totalOrdersTracked) {
         totalOrdersTracked.textContent = `${totalOrders} Orders (${activeOrders} Active, ${deliveredOrders} Delivered)`;
         totalOrdersTracked.className = "badge bg-info me-2";
     }
-    
+        
     if (completeDataCount) {
         completeDataCount.textContent = `${completeData} Complete Data`;
         completeDataCount.className = `badge bg-success me-2`;
     }
-    
+        
     if (incompleteDataCount) {
         incompleteDataCount.textContent = `${incompleteData} Missing Data`;
         incompleteDataCount.className = incompleteData > 0 ? `badge bg-warning me-2` : `badge bg-success me-2`;
     }
-    
+        
     if (lastIntegrityCheck) {
         const now = new Date();
         lastIntegrityCheck.textContent = `Updated: ${now.toLocaleTimeString()}`;
         lastIntegrityCheck.className = "badge bg-secondary";
     }
-    
+        
     // Log detailed status for monitoring
     const dataIntegrityPercentage = totalOrders > 0 ? ((completeData / totalOrders) * 100).toFixed(1) : 0;
     console.log(`📊 AUTOMATED DATA INTEGRITY: ${completeData}/${totalOrders} complete (${dataIntegrityPercentage}%)`);
-    
+        
     // Alert if data integrity is poor
     if (totalOrders > 0 && dataIntegrityPercentage < 80) {
         console.warn(`⚠️ DATA INTEGRITY WARNING: Only ${dataIntegrityPercentage}% of orders have complete data!`);
     }
-    
+        
     return {
         totalOrders,
         completeData,
@@ -1458,8 +1690,12 @@ const updateDataIntegrityStatus = () => {
 
 // Export comprehensive data report
 const exportDataReport = () => {
+    if (!speedyIsAdmin()) {
+        console.warn('Not authorized: admin role required');
+        return null;
+    }
     console.log("📋 Generating comprehensive data report...");
-    
+        
     let report = {
         timestamp: new Date().toISOString(),
         summary: {
@@ -1472,7 +1708,7 @@ const exportDataReport = () => {
     };
     
     orders.forEach((order, ref) => {
-        const isComplete = order.customerName && order.customerPhone && 
+        const isComplete = order.customerName && order.customerPhone && order.customerAddress && 
                          order.storeName && order.items && order.status;
         
         if (isComplete) {
