@@ -1,0 +1,16 @@
+{
+  "name": "speedy-delivery-backend",
+  "version": "1.0.0",
+  "description": "Shared sync backend for Speedy Delivery (orders, drivers, chat, users) - replaces localStorage-only storage so all devices/browsers see the same live data.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "cors": "^2.8.6",
+    "express": "^4.22.2"
+  }
+}

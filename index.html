@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Speedy Delivery – Fast delivery from local stores across Agona Swedru, Central Region, Ghana. Order now and track in real-time.">
+  <title>Speedy Delivery – Agona Swedru, Ghana</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚀</text></svg>">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="sd-nav" id="mainNav">
+  <div class="container d-flex align-items-center justify-content-between">
+    <a href="#" class="sd-brand">
+      <span class="sd-brand-icon">🚀</span>
+      <span>Speedy<strong>Delivery</strong></span>
+    </a>
+    <div class="sd-nav-links">
+      <a href="#stores" class="sd-nav-link">Stores</a>
+      <a href="#order" class="sd-nav-link">Order</a>
+      <a href="#track" class="sd-nav-link">Track</a>
+      <a href="#support" class="sd-nav-link">Help</a>
+      <div id="authButtons">
+        <button class="sd-btn sd-btn-sm sd-btn-ghost" id="userAuthBtn">
+          <i class="fas fa-user me-1"></i>Sign In
+        </button>
+      </div>
+      <div id="dashboardButtons" style="display:none;">
+        <button class="sd-btn sd-btn-sm sd-btn-primary" id="goToDashboardBtn">
+          <i class="fas fa-tachometer-alt me-1"></i>My Dashboard
+        </button>
+        <button class="sd-btn sd-btn-sm sd-btn-ghost" id="logoutBtn">
+          <i class="fas fa-sign-out-alt me-1"></i>Logout
+        </button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="sd-hero" id="home">
+  <div class="sd-hero-overlay"></div>
+  <div class="container position-relative z-1 text-center text-white py-5">
+    <div class="sd-hero-badge mb-3">🇬🇭 Serving Agona Swedru, Central Region</div>
+    
+    <!-- Guest Hero -->
+    <div id="guestHero">
+      <h1 class="sd-hero-title">Delivered to Your<br><span class="sd-hero-accent">Door in Minutes</span></h1>
+      <p class="sd-hero-sub">Shop from local stores and track your order live — no account needed.</p>
+      <div class="d-flex gap-3 justify-content-center flex-wrap mt-4">
+        <a href="#order" class="sd-btn sd-btn-primary">
+          <i class="fas fa-shopping-bag me-2"></i>Place an Order
+        </a>
+        <a href="#track" class="sd-btn sd-btn-ghost">
+          <i class="fas fa-map-marker-alt me-2"></i>Track Order
+        </a>
+      </div>
+    </div>
+
+    <!-- Logged In Hero -->
+    <div id="userHero" style="display:none;">
+      <h1 class="sd-hero-title">Welcome back, <span class="sd-hero-accent" id="heroUserName">User</span>!</h1>
+      <p class="sd-hero-sub">Ready to order? Access your dashboard for the full experience.</p>
+      <div class="d-flex gap-3 justify-content-center flex-wrap mt-4">
+        <button class="sd-btn sd-btn-primary" id="heroDashboardBtn">
+          <i class="fas fa-tachometer-alt me-2"></i>Go to Dashboard
+        </button>
+        <a href="#order" class="sd-btn sd-btn-ghost">
+          <i class="fas fa-shopping-bag me-2"></i>Quick Order
+        </a>
+      </div>
+    </div>
+
+    <div class="sd-hero-stats mt-5">
+      <div class="sd-stat"><span class="sd-stat-num">30<small>min</small></span><span class="sd-stat-label">Avg Delivery</span></div>
+      <div class="sd-stat-divider"></div>
+      <div class="sd-stat"><span class="sd-stat-num">4<small>+</small></span><span class="sd-stat-label">Partner Stores</span></div>
+      <div class="sd-stat-divider"></div>
+      <div class="sd-stat"><span class="sd-stat-num">24/7</span><span class="sd-stat-label">Support</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- DASHBOARD PREVIEW (for logged-in users) -->
+<section id="dashboard-preview" class="sd-section bg-white" style="display:none;">
+  <div class="container">
+    <div class="sd-section-header text-center mb-5">
+      <span class="sd-eyebrow">Your Dashboard</span>
+      <h2 class="sd-section-title">Quick Access to Everything</h2>
+      <p class="text-muted">Manage your orders, track deliveries, and get support</p>
+    </div>
+    
+    <div class="row g-4">
+      <div class="col-lg-3 col-md-6">
+        <div class="sd-preview-card" onclick="window.location.href='dashboard.html'">
+          <div class="sd-preview-icon" style="background: linear-gradient(135deg, #FF6B9D, #FF8C55);">
+            <i class="fas fa-store"></i>
+          </div>
+          <h5>Browse Stores</h5>
+          <p class="text-muted small">Shop from our partner stores</p>
+          <span class="sd-preview-arrow"><i class="fas fa-arrow-right"></i></span>
+        </div>
+      </div>
+      <div class="col-lg-3 col-md-6">
+        <div class="sd-preview-card" onclick="window.location.href='dashboard.html'">
+          <div class="sd-preview-icon" style="background: linear-gradient(135deg, #4ECDC4, #45B7D1);">
+            <i class="fas fa-shopping-bag"></i>
+          </div>
+          <h5>My Orders</h5>
+          <p class="text-muted small">View your order history</p>
+          <span class="sd-preview-arrow"><i class="fas fa-arrow-right"></i></span>
+        </div>
+      </div>
+      <div class="col-lg-3 col-md-6">
+        <div class="sd-preview-card" onclick="window.location.href='dashboard.html'">
+          <div class="sd-preview-icon" style="background: linear-gradient(135deg, #96CEB4, #12A150);">
+            <i class="fas fa-map-marker-alt"></i>
+          </div>
+          <h5>Track Orders</h5>
+          <p class="text-muted small">Live delivery tracking</p>
+          <span class="sd-preview-arrow"><i class="fas fa-arrow-right"></i></span>
+        </div>
+      </div>
+      <div class="col-lg-3 col-md-6">
+        <div class="sd-preview-card" onclick="window.location.href='dashboard.html'">
+          <div class="sd-preview-icon" style="background: linear-gradient(135deg, #667eea, #764ba2);">
+            <i class="fas fa-comments"></i>
+          </div>
+          <h5>Support Chat</h5>
+          <p class="text-muted small">24/7 customer support</p>
+          <span class="sd-preview-arrow"><i class="fas fa-arrow-right"></i></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="text-center mt-5">
+      <button class="sd-btn sd-btn-primary sd-btn-lg" onclick="window.location.href='dashboard.html'">
+        <i class="fas fa-rocket me-2"></i>Launch Full Dashboard
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- USER AUTH MODAL -->
+<div id="userAuthModal" class="sd-auth-modal" style="display:none;">
+  <div class="sd-auth-modal-content">
+    <button class="sd-auth-close" id="closeAuthModal">&times;</button>
+    
+    <!-- Auth Tabs -->
+    <div class="sd-auth-tabs">
+      <button class="sd-auth-tab active" data-tab="signin">Sign In</button>
+      <button class="sd-auth-tab" data-tab="signup">Sign Up</button>
+    </div>
+
+    <!-- Sign In Form -->
+    <div id="signinForm" class="sd-auth-form active">
+      <div class="text-center mb-4">
+        <div class="sd-brand mb-2">
+          <span class="sd-brand-icon">🚀</span>
+          <span>Speedy<strong>Delivery</strong></span>
+        </div>
+        <h3 class="sd-auth-heading">Welcome Back</h3>
+        <p class="text-muted small">Sign in to track your orders and manage your account</p>
+      </div>
+
+      <div id="signin-alert"></div>
+
+      <form id="user-signin-form">
+        <div class="sd-form-section">
+          <label class="sd-label" for="user-email">Email Address <span class="text-danger">*</span></label>
+          <input type="email" id="user-email" class="sd-input" placeholder="your@email.com" required>
+        </div>
+
+        <div class="sd-form-section">
+          <label class="sd-label" for="user-password">Password <span class="text-danger">*</span></label>
+          <input type="password" id="user-password" class="sd-input" placeholder="Enter your password" required>
+        </div>
+
+        <button type="submit" class="sd-btn sd-btn-primary w-100" id="userSigninBtn">
+          <i class="fas fa-sign-in-alt me-2"></i>Sign In
+        </button>
+      </form>
+
+      <p class="text-center text-muted small mt-3 mb-0">
+        Don't have an account? <a href="#" class="sd-auth-switch" data-switch="signup">Sign up</a>
+      </p>
+    </div>
+
+    <!-- Sign Up Form -->
+    <div id="signupForm" class="sd-auth-form">
+      <div class="text-center mb-4">
+        <div class="sd-brand mb-2">
+          <span class="sd-brand-icon">🚀</span>
+          <span>Speedy<strong>Delivery</strong></span>
+        </div>
+        <h3 class="sd-auth-heading">Create Account</h3>
+        <p class="text-muted small">Join Speedy Delivery for faster ordering and order tracking</p>
+      </div>
+
+      <div id="signup-alert"></div>
+
+      <form id="user-signup-form">
+        <div class="sd-form-section">
+          <label class="sd-label" for="new-user-name">Full Name <span class="text-danger">*</span></label>
+          <input type="text" id="new-user-name" class="sd-input" placeholder="Your full name" required>
+        </div>
+
+        <div class="sd-form-section">
+          <label class="sd-label" for="new-user-email">Email Address <span class="text-danger">*</span></label>
+          <input type="email" id="new-user-email" class="sd-input" placeholder="your@email.com" required>
+        </div>
+
+        <div class="sd-form-section">
+          <label class="sd-label" for="new-user-phone">Phone Number <span class="text-danger">*</span></label>
+          <input type="tel" id="new-user-phone" class="sd-input" placeholder="e.g. 0551234567" required>
+        </div>
+
+        <div class="sd-form-section">
+          <label class="sd-label" for="new-user-password">Password <span class="text-danger">*</span></label>
+          <input type="password" id="new-user-password" class="sd-input" placeholder="Min. 6 characters" required>
+        </div>
+
+        <div class="sd-form-section">
+          <label class="sd-label" for="new-user-confirm">Confirm Password <span class="text-danger">*</span></label>
+          <input type="password" id="new-user-confirm" class="sd-input" placeholder="Repeat password" required>
+        </div>
+
+        <button type="submit" class="sd-btn sd-btn-primary w-100" id="userSignupBtn">
+          <i class="fas fa-user-plus me-2"></i>Create Account
+        </button>
+      </form>
+
+      <p class="text-center text-muted small mt-3 mb-0">
+        Already have an account? <a href="#" class="sd-auth-switch" data-switch="signin">Sign in</a>
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<section class="sd-section bg-white">
+  <div class="container">
+    <div class="sd-section-header text-center">
+      <span class="sd-eyebrow">How It Works</span>
+      <h2 class="sd-section-title">Order in 3 Easy Steps</h2>
+    </div>
+    <div class="row g-4 mt-2">
+      <div class="col-md-4">
+        <div class="sd-step-card">
+          <div class="sd-step-num">01</div>
+          <div class="sd-step-icon"><i class="fas fa-store"></i></div>
+          <h5>Pick a Store</h5>
+          <p>Choose from our partner stores in Agona Swedru. Grocery, food, cosmetics and more.</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="sd-step-card">
+          <div class="sd-step-num">02</div>
+          <div class="sd-step-icon"><i class="fas fa-list-ul"></i></div>
+          <h5>List Your Items</h5>
+          <p>Tell us what you need. Be as specific as you like — brand, quantity, size.</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="sd-step-card">
+          <div class="sd-step-num">03</div>
+          <div class="sd-step-icon"><i class="fas fa-mobile-alt"></i></div>
+          <h5>Pay & Track</h5>
+          <p>Pay via Mobile Money. Get a tracking code and watch your order arrive in real-time.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STORES -->
+<section class="sd-section" id="stores" style="background:#f8f7f5;">
+  <div class="container">
+    <div class="sd-section-header text-center">
+      <span class="sd-eyebrow">Partner Stores</span>
+      <h2 class="sd-section-title">What Would You Like Today?</h2>
+      <p class="text-muted">All stores are based in Agona Swedru, Central Region, Ghana</p>
+    </div>
+    <div id="stores-loading" class="text-center py-5">
+      <div class="sd-spinner"></div>
+      <p class="text-muted mt-3">Loading stores…</p>
+    </div>
+    <div class="row g-4" id="store-list" style="display:none;"></div>
+  </div>
+</section>
+
+<!-- ORDER FORM -->
+<section class="sd-section bg-white" id="order">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-9">
+        <div class="sd-card-elevated">
+          <div class="sd-form-header text-center mb-4">
+            <span class="sd-eyebrow">Place Your Order</span>
+            <h2 class="sd-section-title mt-1">Fill in Your Details</h2>
+            <p class="text-muted">No sign-up required. You'll get a tracking number instantly.</p>
+          </div>
+
+          <form id="order-form" novalidate>
+            <!-- Customer Info -->
+            <div class="sd-form-section">
+              <div class="sd-form-section-label"><i class="fas fa-user me-2"></i>Your Information</div>
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="sd-label" for="customer-name">Full Name <span class="text-danger">*</span></label>
+                  <input type="text" id="customer-name" class="sd-input" placeholder="e.g. Kofi Mensah" required>
+                </div>
+                <div class="col-md-6">
+                  <label class="sd-label" for="customer-phone">Phone Number <span class="text-danger">*</span></label>
+                  <input type="tel" id="customer-phone" class="sd-input" placeholder="e.g. 0551234567" required>
+                </div>
+                <div class="col-12">
+                  <label class="sd-label" for="customer-address">Delivery Address <span class="text-danger">*</span></label>
+                  <textarea id="customer-address" class="sd-input" rows="2" placeholder="e.g. House No. 15, Near Agona Swedru SHS" required></textarea>
+                </div>
+              </div>
+            </div>
+
+            <!-- Store -->
+            <div class="sd-form-section">
+              <div class="sd-form-section-label"><i class="fas fa-store me-2"></i>Choose a Store</div>
+              <select id="store-select" class="sd-input" required>
+                <option value="" disabled selected>Select a store…</option>
+              </select>
+            </div>
+
+            <!-- Items -->
+            <div class="sd-form-section">
+              <div class="sd-form-section-label"><i class="fas fa-shopping-cart me-2"></i>Shopping List</div>
+              <textarea id="items" class="sd-input" rows="5" placeholder="List items one per line:&#10;2L Cowbell Milk&#10;1 loaf bread&#10;5kg rice bag" required></textarea>
+              <p class="sd-form-hint"><i class="fas fa-lightbulb me-1"></i>Be specific — include quantities, brands, and sizes.</p>
+            </div>
+
+            <!-- Special Instructions -->
+            <div class="sd-form-section">
+              <div class="sd-form-section-label"><i class="fas fa-comment-dots me-2"></i>Special Instructions <span class="text-muted fw-normal">(optional)</span></div>
+              <textarea id="custom-request" class="sd-input" rows="2" placeholder="Any extra notes for the driver…"></textarea>
+            </div>
+
+            <!-- Eco -->
+            <div class="sd-form-section sd-form-section-sm">
+              <label class="sd-checkbox-label">
+                <input type="checkbox" id="eco-friendly" class="sd-checkbox">
+                <span class="sd-checkbox-mark"></span>
+                <span><i class="fas fa-leaf text-success me-1"></i>Request eco-friendly packaging</span>
+              </label>
+            </div>
+
+            <div id="order-form-alert"></div>
+
+            <button type="submit" class="sd-btn sd-btn-primary w-100 mt-2" id="submit-order-btn">
+              <i class="fas fa-credit-card me-2"></i>Continue to Payment
+            </button>
+          </form>
+
+          <!-- Payment Step -->
+          <div id="payment-step" class="sd-payment-box" style="display:none;">
+            <div class="sd-payment-header">
+              <i class="fas fa-mobile-alt me-2"></i>Complete Your Mobile Money Payment
+            </div>
+            <div class="sd-payment-body">
+              <div class="sd-payment-row">
+                <span>Items Subtotal</span>
+                <strong id="payment-items-subtotal">GH₵0</strong>
+              </div>
+              <div class="sd-payment-row">
+                <span>Delivery Fee <small class="text-muted">(flat)</small></span>
+                <strong id="payment-delivery-fee">GH₵25</strong>
+              </div>
+              <div class="sd-payment-row">
+                <span>Send payment to</span>
+                <strong>+233 55 635 9890</strong>
+              </div>
+              <div class="sd-payment-row">
+                <span>Reference / Narration</span>
+                <strong id="payment-reference" class="sd-ref-pill">SPD-XXXXX</strong>
+              </div>
+              <p class="sd-payment-note"><i class="fas fa-info-circle me-1"></i>Add your total amount plus the delivery fee upon sending payment, and always include your reference number.</p>
+            </div>
+            <button id="confirm-payment" class="sd-btn sd-btn-success w-100">
+              <i class="fas fa-check-circle me-2"></i>I've Sent the Payment
+            </button>
+          </div>
+
+          <!-- Order Result -->
+          <div id="order-result"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TRACK -->
+<section class="sd-section" id="track" style="background:#f8f7f5;">
+  <div class="container">
+    <div class="sd-section-header text-center">
+      <span class="sd-eyebrow">Live Tracking</span>
+      <h2 class="sd-section-title">Where's My Order?</h2>
+      <p class="text-muted">Enter your reference number to see real-time delivery status.</p>
+    </div>
+    <div class="row justify-content-center mt-3">
+      <div class="col-lg-6">
+        <div class="sd-track-input-group">
+          <input type="text" id="track-input" class="sd-input" placeholder="e.g. SPD-ABC123XYZ">
+          <button class="sd-btn sd-btn-primary" id="track-btn">
+            <i class="fas fa-search me-1"></i>Track
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="row justify-content-center mt-4">
+      <div class="col-lg-8" id="track-result"></div>
+    </div>
+  </div>
+</section>
+
+<!-- SUPPORT -->
+<section class="sd-section bg-white" id="support">
+  <div class="container">
+    <div class="sd-section-header text-center">
+      <span class="sd-eyebrow">Help & Support</span>
+      <h2 class="sd-section-title">We're Here for You</h2>
+    </div>
+    <div class="row justify-content-center g-4 mt-2">
+      <div class="col-md-4">
+        <div class="sd-support-card text-center">
+          <div class="sd-support-icon"><i class="fas fa-phone"></i></div>
+          <h6>Call Us</h6>
+          <a href="tel:+233556359890">+233 55 635 9890</a>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="sd-support-card text-center">
+          <div class="sd-support-icon"><i class="fab fa-whatsapp"></i></div>
+          <h6>WhatsApp</h6>
+          <a href="https://wa.me/233556359890" target="_blank">Chat with us</a>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="sd-support-card text-center">
+          <div class="sd-support-icon"><i class="fas fa-envelope"></i></div>
+          <h6>Email</h6>
+          <a href="mailto:cosmoscoderr@gmail.com">cosmoscoderr@gmail.com</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="sd-footer">
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
+        <div class="sd-brand mb-2">
+          <span class="sd-brand-icon">🚀</span>
+          <span>Speedy<strong>Delivery</strong></span>
+        </div>
+        <p class="small mb-0" style="color: white;">Fast &amp; reliable delivery in Agona Swedru, Central Region, Ghana</p>
+      </div>
+      <div class="col-md-6 text-center text-md-end">
+        <div class="d-flex flex-wrap justify-content-center justify-content-md-end gap-3 mb-2">
+          <a href="driver-signup.html" class="sd-btn sd-btn-sm sd-btn-outline-primary">
+            <i class="fas fa-truck-fast me-1"></i>Become a Driver
+          </a>
+        </div>
+        <div class="sd-footer-stars" aria-hidden="true">
+          <span class="sd-footer-star"><i class="fas fa-star"></i></span>
+          <a href="admin-login.html" class="sd-footer-star sd-footer-star-link" title="" aria-label="Staff access"><i class="fas fa-star"></i></a>
+          <span class="sd-footer-star"><i class="fas fa-star"></i></span>
+        </div>
+        <p class="small mb-1" style="color: white;">© 2025 Speedy Delivery Service. All rights reserved.</p>
+        <!-- Hidden admin access - small inconspicuous icon -->
+        <a href="admin-login.html" class="sd-admin-trigger" title="" aria-label="Staff access">
+          <i class="fas fa-circle" style="font-size:6px; opacity:0.25;"></i>
+        </a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- REFUND POLICY MODAL -->
+<div id="refundPolicyModal" class="sd-auth-modal" style="display:none;">
+  <div class="sd-auth-modal-content sd-policy-modal-content">
+    <button class="sd-auth-close" id="closeRefundPolicyModal">&times;</button>
+
+    <div class="sd-policy-header">
+      <span class="sd-policy-icon"><i class="fas fa-shield-alt"></i></span>
+      <h3 class="sd-policy-title">Before You Pay — Refund Policy</h3>
+      <p class="text-muted small mb-0">Please read and accept before continuing to payment.</p>
+    </div>
+
+    <div class="sd-policy-body">
+      <div class="sd-policy-point">
+        <i class="fas fa-circle-check"></i>
+        <div>
+          <strong>When refunds apply</strong>
+          <p>Refunds are only issued if an item you ordered is unavailable at the store <u>after</u> our driver has already arrived to shop for you.</p>
+        </div>
+      </div>
+      <div class="sd-policy-point">
+        <i class="fas fa-percent"></i>
+        <div>
+          <strong>Refund amount</strong>
+          <p>If you qualify for a refund, you will <u>not</u> be refunded 100% of that item's cost. Speedy Delivery retains <strong>10%</strong> of the refunded amount to cover the driver's gas and time spent traveling to the store.</p>
+        </div>
+      </div>
+      <div class="sd-policy-point">
+        <i class="fas fa-truck"></i>
+        <div>
+          <strong>Delivery fee</strong>
+          <p>The GH₵25 flat delivery fee is <u>non-refundable</u> once a driver has been dispatched.</p>
+        </div>
+      </div>
+
+      <label class="sd-checkbox-label mt-3">
+        <input type="checkbox" id="refund-policy-agree" class="sd-checkbox">
+        <span class="sd-checkbox-mark"></span>
+        <span>I have read and agree to the refund policy above.</span>
+      </label>
+      <div id="refund-policy-alert"></div>
+    </div>
+
+    <div class="sd-policy-footer">
+      <button class="sd-btn sd-btn-ghost" id="declineRefundPolicy">Cancel</button>
+      <button class="sd-btn sd-btn-primary" id="acceptRefundPolicy">
+        <i class="fas fa-check me-2"></i>Agree &amp; Continue to Payment
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- STORE INVENTORY MODAL -->
+<div id="storeInventoryModal" class="sd-auth-modal" style="display:none;">
+  <div class="sd-auth-modal-content sd-inventory-modal-content">
+    <button class="sd-auth-close" id="closeInventoryModal">&times;</button>
+    
+    <div class="sd-inventory-header">
+      <div class="d-flex align-items-center">
+        <span class="sd-inventory-icon" id="inventoryStoreIcon">💄</span>
+        <div>
+          <h3 class="sd-inventory-title" id="inventoryStoreName">Store Name</h3>
+          <p class="text-muted small" id="inventoryStoreType">Store Type</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="sd-inventory-body">
+      <div id="inventory-loading" class="text-center py-4">
+        <div class="sd-spinner"></div>
+        <p class="text-muted mt-2">Loading inventory…</p>
+      </div>
+      <div id="inventory-list" style="display:none;"></div>
+    </div>
+
+    <div class="sd-inventory-footer">
+      <button class="sd-btn sd-btn-primary w-100" id="addToOrderBtn">
+        <i class="fas fa-shopping-cart me-2"></i>Add Selected to Order
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Loading overlay -->
+<div id="loading-overlay" class="sd-loading-overlay" style="display:none;">
+  <div class="sd-loading-box">
+    <div class="sd-spinner"></div>
+    <p class="mt-3 mb-0">Processing…</p>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="speedy-sync.js"></script>
+<script src="script.js"></script>
+<script src="user-auth.js"></script>
+</body>
+</html>

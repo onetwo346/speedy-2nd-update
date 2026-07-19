@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Speedy Delivery · Admin Portal</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>">
+  <link rel="stylesheet" href="admin.css">
+
+  <script src="speedy-sync.js"></script>
+  <script src="auth.js"></script>
+  <script>speedyRequireRole('admin', 'admin-login.html');</script>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-mark">
+      <i class="fas fa-shield-halved"></i>
+    </div>
+    <div class="brand-words">
+      <span class="brand-name">Speedy</span>
+      <span class="brand-role">Admin Portal</span>
+    </div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <button class="nav-item active" data-section="dashboard" onclick="showSection('dashboard', this)">
+      <i class="fas fa-gauge-high"></i>
+      <span>Dashboard</span>
+    </button>
+    <button class="nav-item" data-section="orders" onclick="showSection('orders', this)">
+      <i class="fas fa-clipboard-list"></i>
+      <span>Orders</span>
+      <span class="nav-badge" id="nav-orders-count">0</span>
+    </button>
+    <button class="nav-item" data-section="drivers" onclick="showSection('drivers', this)">
+      <i class="fas fa-id-card"></i>
+      <span>Drivers</span>
+      <span class="nav-badge" id="nav-drivers-count">0</span>
+    </button>
+    <button class="nav-item" data-section="analytics" onclick="showSection('analytics', this)">
+      <i class="fas fa-chart-line"></i>
+      <span>Analytics</span>
+    </button>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="admin-identity">
+      <div class="admin-avatar"><i class="fas fa-user-shield"></i></div>
+      <div class="admin-info">
+        <div class="admin-name">Administrator</div>
+        <div class="admin-region"><i class="fas fa-location-dot me-1"></i>Agona Swedru</div>
+      </div>
+    </div>
+    <button class="sidebar-logout" onclick="speedyLogout('admin-login.html')">
+      <i class="fas fa-right-from-bracket"></i>
+      <span>Logout</span>
+    </button>
+  </div>
+</aside>
+
+<!-- MAIN CONTENT -->
+<main class="main-content">
+
+  <!-- TOP BAR -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <button class="menu-toggle" onclick="toggleSidebar()" aria-label="Toggle menu">
+        <i class="fas fa-bars"></i>
+      </button>
+      <div class="breadcrumb-area">
+        <span class="breadcrumb-label" id="breadcrumb-label">Dashboard</span>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <div class="live-badge">
+        <span class="live-dot"></span>
+        <span>Live</span>
+      </div>
+      <div class="topbar-time" id="topbar-time"></div>
+      <button class="topbar-btn" onclick="globalRefresh()" title="Refresh data">
+        <i class="fas fa-rotate-right" id="refresh-icon"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- ════════════════════ DASHBOARD SECTION ════════════════════ -->
+  <section id="section-dashboard" class="page-section active">
+
+    <!-- STATS ROW -->
+    <div class="stats-grid">
+      <div class="stat-card stat-card--blue">
+        <div class="stat-icon"><i class="fas fa-clipboard-list"></i></div>
+        <div class="stat-body">
+          <div class="stat-value" id="dash-total-orders">0</div>
+          <div class="stat-label">Total Orders</div>
+        </div>
+        <div class="stat-trend" id="dash-total-trend"></div>
+      </div>
+      <div class="stat-card stat-card--amber">
+        <div class="stat-icon"><i class="fas fa-hourglass-half"></i></div>
+        <div class="stat-body">
+          <div class="stat-value" id="dash-active-orders">0</div>
+          <div class="stat-label">Active Orders</div>
+        </div>
+      </div>
+      <div class="stat-card stat-card--green">
+        <div class="stat-icon"><i class="fas fa-circle-check"></i></div>
+        <div class="stat-body">
+          <div class="stat-value" id="dash-delivered">0</div>
+          <div class="stat-label">Delivered Today</div>
+        </div>
+      </div>
+      <div class="stat-card stat-card--purple">
+        <div class="stat-icon"><i class="fas fa-users"></i></div>
+        <div class="stat-body">
+          <div class="stat-value" id="dash-drivers">0</div>
+          <div class="stat-label">Registered Drivers</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RECENT ORDERS + DRIVER SUMMARY -->
+    <div class="dashboard-grid">
+      <div class="panel">
+        <div class="panel-header">
+          <h2 class="panel-title"><i class="fas fa-clock-rotate-left me-2"></i>Recent Orders</h2>
+          <button class="panel-action" onclick="showSection('orders', document.querySelector('[data-section=orders]'))">View all</button>
+        </div>
+        <div id="dash-recent-orders">
+          <div class="empty-state-sm"><i class="fas fa-inbox"></i><span>No orders yet</span></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <h2 class="panel-title"><i class="fas fa-chart-pie me-2"></i>Order Breakdown</h2>
+        </div>
+        <div id="dash-breakdown" class="breakdown-list"></div>
+      </div>
+    </div>
+
+    <!-- DATA INTEGRITY PANEL -->
+    <div class="panel mt-4">
+      <div class="panel-header">
+        <h2 class="panel-title"><i class="fas fa-shield-check me-2"></i>Data Integrity Monitor</h2>
+        <div class="d-flex gap-2">
+          <button class="panel-action" onclick="testDataIntegrity()"><i class="fas fa-magnifying-glass me-1"></i>Test</button>
+          <button class="panel-action" onclick="exportDataReport()"><i class="fas fa-download me-1"></i>Export</button>
+        </div>
+      </div>
+      <div class="integrity-badges">
+        <span class="ibadge ibadge--blue" id="total-orders-tracked">0 Tracked</span>
+        <span class="ibadge ibadge--green" id="complete-data-count">0 Complete</span>
+        <span class="ibadge ibadge--amber" id="incomplete-data-count">0 Missing</span>
+        <span class="ibadge ibadge--grey" id="last-integrity-check">Never checked</span>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ════════════════════ ORDERS SECTION ════════════════════ -->
+  <section id="section-orders" class="page-section">
+
+    <div class="section-header">
+      <div>
+        <h1 class="section-title">Orders Management</h1>
+        <p class="section-sub">All customer orders across Agona Swedru & Central Region</p>
+      </div>
+      <div class="section-actions">
+        <select class="filter-select" id="order-status-filter" onchange="renderOrdersList()">
+          <option value="">All Statuses</option>
+          <option value="Order Placed and Received">New Orders</option>
+          <option value="Payment Confirmed - Driver Assigned">Confirmed</option>
+          <option value="Driver on the Way to Store">En Route to Store</option>
+          <option value="At the Store">At Store</option>
+          <option value="Shopping">Shopping</option>
+          <option value="On the Way to Customer">En Route to Customer</option>
+          <option value="Delivered">Delivered</option>
+          <option value="Cancelled">Cancelled</option>
+        </select>
+        <input type="text" class="filter-input" id="order-search" placeholder="Search ref / customer / store…" oninput="renderOrdersList()">
+        <button class="btn-primary-sm" onclick="globalRefresh()"><i class="fas fa-rotate-right me-1"></i>Refresh</button>
+      </div>
+    </div>
+
+    <!-- STATUS TABS -->
+    <div class="status-tabs" id="status-tabs">
+      <button class="stab active" data-val="" onclick="setStatusTab(this, '')">All</button>
+      <button class="stab" data-val="Order Placed and Received" onclick="setStatusTab(this, 'Order Placed and Received')">New</button>
+      <button class="stab" data-val="Driver on the Way to Store" onclick="setStatusTab(this, 'Driver on the Way to Store')">En Route</button>
+      <button class="stab" data-val="At the Store" onclick="setStatusTab(this, 'At the Store')">At Store</button>
+      <button class="stab" data-val="Shopping" onclick="setStatusTab(this, 'Shopping')">Shopping</button>
+      <button class="stab" data-val="On the Way to Customer" onclick="setStatusTab(this, 'On the Way to Customer')">Delivering</button>
+      <button class="stab" data-val="Delivered" onclick="setStatusTab(this, 'Delivered')">Done</button>
+    </div>
+
+    <div id="orders-loading" class="loader-wrap" style="display:none">
+      <div class="spinner"></div><p>Loading orders…</p>
+    </div>
+    <div id="orders-empty" class="empty-state" style="display:none">
+      <i class="fas fa-inbox"></i>
+      <h3>No orders found</h3>
+      <p>Orders placed by customers will appear here.</p>
+    </div>
+    <div class="orders-table-wrap" id="orders-table-wrap">
+      <table class="orders-table">
+        <thead>
+          <tr>
+            <th>Reference</th>
+            <th>Customer</th>
+            <th>Store</th>
+            <th>Items</th>
+            <th>Address</th>
+            <th>Status</th>
+            <th>Placed</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="orders-tbody"></tbody>
+      </table>
+    </div>
+
+  </section>
+
+  <!-- ════════════════════ DRIVERS SECTION ════════════════════ -->
+  <section id="section-drivers" class="page-section">
+
+    <div class="section-header">
+      <div>
+        <h1 class="section-title">Registered Drivers</h1>
+        <p class="section-sub">Manage and verify driver accounts</p>
+      </div>
+      <div class="section-actions">
+        <input type="text" class="filter-input" id="driver-search" placeholder="Search name / email / phone…" oninput="renderDriversList()">
+        <select class="filter-select" id="driver-status-filter" onchange="renderDriversList()">
+          <option value="">All Drivers</option>
+          <option value="approved">Approved</option>
+          <option value="pending">Pending</option>
+        </select>
+      </div>
+    </div>
+
+    <div id="drivers-empty" class="empty-state" style="display:none">
+      <i class="fas fa-users"></i>
+      <h3>No drivers yet</h3>
+      <p>Drivers who sign up will appear here for review.</p>
+    </div>
+    <div class="drivers-grid" id="drivers-grid"></div>
+
+  </section>
+
+  <!-- ════════════════════ ANALYTICS SECTION ════════════════════ -->
+  <section id="section-analytics" class="page-section">
+
+    <div class="section-header">
+      <div>
+        <h1 class="section-title">Analytics & Reports</h1>
+        <p class="section-sub">Overview of operations in Central Region</p>
+      </div>
+      <div class="section-actions">
+        <button class="btn-primary-sm" onclick="updateAnalytics()"><i class="fas fa-rotate-right me-1"></i>Refresh</button>
+        <button class="btn-primary-sm" onclick="exportDataReport()"><i class="fas fa-download me-1"></i>Export Report</button>
+      </div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card stat-card--blue">
+        <div class="stat-icon"><i class="fas fa-clipboard-list"></i></div>
+        <div class="stat-body">
+          <div class="stat-value" id="an-total">0</div>
+          <div class="stat-label">Total Orders</div>
+        </div>
+      </div>
+      <div class="stat-card stat-card--green">
+        <div class="stat-icon"><i class="fas fa-circle-check"></i></div>
+        <div class="stat-body">
+          <div class="stat-value" id="an-delivered">0</div>
+          <div class="stat-label">Delivered</div>
+        </div>
+      </div>
+      <div class="stat-card stat-card--amber">
+        <div class="stat-icon"><i class="fas fa-hourglass-half"></i></div>
+        <div class="stat-body">
+          <div class="stat-value" id="an-active">0</div>
+          <div class="stat-label">Active Orders</div>
+        </div>
+      </div>
+      <div class="stat-card stat-card--purple">
+        <div class="stat-icon"><i class="fas fa-users"></i></div>
+        <div class="stat-body">
+          <div class="stat-value" id="an-drivers">0</div>
+          <div class="stat-label">Total Drivers</div>
+        </div>
+      </div>
+      <div class="stat-card stat-card--red">
+        <div class="stat-icon"><i class="fas fa-times-circle"></i></div>
+        <div class="stat-body">
+          <div class="stat-value" id="an-cancelled">0</div>
+          <div class="stat-label">Cancelled</div>
+        </div>
+      </div>
+      <div class="stat-card stat-card--teal">
+        <div class="stat-icon"><i class="fas fa-user-check"></i></div>
+        <div class="stat-body">
+          <div class="stat-value" id="an-approved-drivers">0</div>
+          <div class="stat-label">Approved Drivers</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="dashboard-grid mt-4">
+      <div class="panel">
+        <div class="panel-header">
+          <h2 class="panel-title"><i class="fas fa-store me-2"></i>Orders by Store</h2>
+        </div>
+        <div id="an-by-store" class="breakdown-list"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-header">
+          <h2 class="panel-title"><i class="fas fa-layer-group me-2"></i>Orders by Status</h2>
+        </div>
+        <div id="an-by-status" class="breakdown-list"></div>
+      </div>
+    </div>
+
+  </section>
+
+</main>
+
+<!-- ════════════════════ MODALS ════════════════════ -->
+
+<!-- Order Detail Modal -->
+<div class="modal-overlay" id="modal-order" onclick="closeModal('modal-order')">
+  <div class="modal-box modal-box--wide" onclick="event.stopPropagation()">
+    <div class="modal-head">
+      <h2 id="modal-order-title"><i class="fas fa-receipt me-2"></i>Order Details</h2>
+      <button class="modal-close" onclick="closeModal('modal-order')"><i class="fas fa-xmark"></i></button>
+    </div>
+    <div class="modal-body" id="modal-order-body"></div>
+    <div class="modal-foot">
+      <button class="btn-secondary" onclick="closeModal('modal-order')">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Driver Detail Modal -->
+<div class="modal-overlay" id="modal-driver" onclick="closeModal('modal-driver')">
+  <div class="modal-box modal-box--wide" onclick="event.stopPropagation()">
+    <div class="modal-head">
+      <h2><i class="fas fa-id-card me-2"></i>Driver Details</h2>
+      <button class="modal-close" onclick="closeModal('modal-driver')"><i class="fas fa-xmark"></i></button>
+    </div>
+    <div class="modal-body" id="modal-driver-body"></div>
+    <div class="modal-foot">
+      <button class="btn-secondary" onclick="closeModal('modal-driver')">Close</button>
+      <button class="btn-primary" id="modal-driver-msg-btn">
+        <i class="fas fa-comment me-2"></i>Send Message
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Media Lightbox -->
+<div class="modal-overlay modal-overlay--dark" id="modal-media" onclick="closeModal('modal-media')">
+  <div class="media-lightbox" onclick="event.stopPropagation()">
+    <button class="modal-close modal-close--light" onclick="closeModal('modal-media')"><i class="fas fa-xmark"></i></button>
+    <p class="media-title" id="media-lightbox-title"></p>
+    <img id="media-lightbox-img" src="" alt="Driver media">
+  </div>
+</div>
+
+<!-- Message Driver Modal -->
+<div class="modal-overlay" id="modal-message" onclick="closeModal('modal-message')">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <div class="modal-head">
+      <h2><i class="fas fa-comment me-2"></i>Message Driver</h2>
+      <button class="modal-close" onclick="closeModal('modal-message')"><i class="fas fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <div id="msg-driver-info" class="msg-driver-info mb-3"></div>
+      <div id="msg-history" class="msg-history"></div>
+      <div class="msg-input-row">
+        <textarea id="msg-input" class="msg-textarea" placeholder="Type a message…" rows="2"></textarea>
+        <button class="btn-primary" id="msg-send-btn"><i class="fas fa-paper-plane"></i></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Reset Password Modal -->
+<div class="modal-overlay" id="modal-reset-pw" onclick="closeModal('modal-reset-pw')">
+  <div class="modal-box modal-box--sm" onclick="event.stopPropagation()">
+    <div class="modal-head">
+      <h2><i class="fas fa-key me-2"></i>Reset Password</h2>
+      <button class="modal-close" onclick="closeModal('modal-reset-pw')"><i class="fas fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <div id="reset-pw-alert" class="mb-3"></div>
+      <input type="hidden" id="reset-pw-driver-id">
+      <p class="text-muted small mb-3" id="reset-pw-name"></p>
+      <div class="field mb-3">
+        <label class="field-label">New Password</label>
+        <input type="password" class="field-input" id="reset-pw-1" autocomplete="new-password" placeholder="Min. 6 characters">
+      </div>
+      <div class="field">
+        <label class="field-label">Confirm Password</label>
+        <input type="password" class="field-input" id="reset-pw-2" autocomplete="new-password" placeholder="Repeat password">
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-secondary" onclick="closeModal('modal-reset-pw')">Cancel</button>
+      <button class="btn-primary" id="reset-pw-save">Reset Password</button>
+    </div>
+  </div>
+</div>
+
+<!-- Loading overlay -->
+<div id="loading-overlay" class="loading-overlay" style="display:none">
+  <div class="loading-card">
+    <div class="spinner"></div>
+    <p>Processing…</p>
+  </div>
+</div>
+
+<!-- Toast container -->
+<div id="toast-container"></div>
+
+<script src="admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Speedy Delivery Driver Portal – Agona Swedru dispatch board">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Speedy Delivery · Driver Portal</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="driver.css">
+
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚚</text></svg>">
+  <script src="speedy-sync.js"></script>
+  <script src="auth.js"></script>
+</head>
+<body>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="driverSidebar" role="complementary" aria-label="Driver sidebar" style="display:none;">
+    <div class="sidebar-brand">
+      <div class="brand-icon"><i class="fas fa-truck-fast"></i></div>
+      <div class="brand-text">
+        <span class="brand-name">Speedy</span>
+        <span class="brand-sub">Driver Portal</span>
+      </div>
+    </div>
+
+    <div class="sidebar-location">
+      <i class="fas fa-location-dot"></i>
+      <span>Agona Swedru</span>
+    </div>
+
+    <nav class="sidebar-nav" aria-label="Portal navigation">
+      <a href="#" class="nav-item active">
+        <i class="fas fa-gauge-high"></i>
+        <span>Dispatch Board</span>
+      </a>
+      <a href="#" class="nav-item">
+        <i class="fas fa-clock-rotate-left"></i>
+        <span>History</span>
+      </a>
+      <a href="#" class="nav-item">
+        <i class="fas fa-chart-simple"></i>
+        <span>Stats</span>
+      </a>
+      <a href="#" class="nav-item" id="navMessagesBtn">
+        <i class="fas fa-comment-dots"></i>
+        <span>Messages</span>
+        <span class="nav-badge" id="chatUnreadBadge" style="display:none;">0</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <button type="button" class="sidebar-driver-id" id="sidebarProfileTrigger">
+        <div class="sidebar-driver-avatar" id="sidebarDriverAvatar"><i class="fas fa-user"></i></div>
+        <div class="sidebar-driver-info">
+          <span class="sidebar-driver-name" id="sidebarDriverName">Driver</span>
+          <span class="sidebar-view-profile">View profile</span>
+        </div>
+      </button>
+      <a href="#" class="sidebar-logout-standalone" id="sidebarLogoutBtn"><i class="fas fa-sign-out-alt"></i> Log out</a>
+      <div class="live-indicator">
+        <span class="live-dot" id="live-dot"></span>
+        <span class="live-label" id="live-label">Live</span>
+      </div>
+      <div class="last-sync" id="last-sync">Synced just now</div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main" id="main-content" style="display:none;">
+
+    <!-- TOP BAR -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <h1 class="page-title">Dispatch Board</h1>
+        <p class="page-sub">Active orders requiring your attention</p>
+      </div>
+      <div class="topbar-right">
+        <div class="stat-pill">
+          <span class="stat-pill-num" id="total-orders">0</span>
+          <span class="stat-pill-label">Active</span>
+        </div>
+        <div class="stat-pill amber">
+          <span class="stat-pill-num" id="pending-orders">0</span>
+          <span class="stat-pill-label">New</span>
+        </div>
+        <button class="btn-refresh" onclick="refreshOrders()" aria-label="Refresh orders">
+          <i class="fas fa-arrows-rotate" id="refresh-icon"></i>
+          Refresh
+        </button>
+      </div>
+    </header>
+
+    <!-- INTEGRITY BAR -->
+    <div class="integrity-bar" id="integrity-bar">
+      <div class="integrity-left">
+        <i class="fas fa-shield-check"></i>
+        <span>Data Monitor:</span>
+        <span class="badge teal" id="total-orders-tracked">0 Tracked</span>
+        <span class="badge green" id="complete-data-count">0 Complete</span>
+        <span class="badge amber" id="incomplete-data-count">0 Missing</span>
+        <span class="badge grey" id="last-integrity-check">Never</span>
+      </div>
+      <div class="integrity-right">
+        <button class="micro-btn" onclick="testDataIntegrity()"><i class="fas fa-magnifying-glass"></i> Test</button>
+        <button class="micro-btn" onclick="diagnoseDataIntegrityIssues()"><i class="fas fa-stethoscope"></i> Diagnose</button>
+        <button class="micro-btn amber" onclick="attemptDataIntegrityFix()"><i class="fas fa-wand-magic-sparkles"></i> Auto Fix</button>
+        <button class="micro-btn" onclick="exportDataReport()"><i class="fas fa-download"></i> Export</button>
+      </div>
+    </div>
+
+    <!-- FILTERS -->
+    <div class="filters-row">
+      <div class="filter-tabs" role="tablist" aria-label="Filter orders by status">
+        <button class="filter-tab active" data-value="" onclick="setFilter(this, '')" role="tab" aria-selected="true">All</button>
+        <button class="filter-tab" data-value="Order Placed and Received" onclick="setFilter(this, 'Order Placed and Received')" role="tab" aria-selected="false">New</button>
+        <button class="filter-tab" data-value="Driver on the Way to Store" onclick="setFilter(this, 'Driver on the Way to Store')" role="tab" aria-selected="false">En Route</button>
+        <button class="filter-tab" data-value="At the Store" onclick="setFilter(this, 'At the Store')" role="tab" aria-selected="false">At Store</button>
+        <button class="filter-tab" data-value="Shopping" onclick="setFilter(this, 'Shopping')" role="tab" aria-selected="false">Shopping</button>
+        <button class="filter-tab" data-value="On the Way to Customer" onclick="setFilter(this, 'On the Way to Customer')" role="tab" aria-selected="false">Delivering</button>
+        <button class="filter-tab" data-value="Delivered" onclick="setFilter(this, 'Delivered')" role="tab" aria-selected="false">Done</button>
+      </div>
+    </div>
+
+    <!-- ORDERS -->
+    <section class="orders-section" aria-label="Orders list">
+
+      <div id="orders-loading" class="state-view" style="display:none;" aria-live="polite">
+        <div class="spinner"></div>
+        <p>Loading orders…</p>
+      </div>
+
+      <div id="orders-empty" class="state-view" style="display:none;" aria-live="polite">
+        <div class="empty-icon"><i class="fas fa-inbox"></i></div>
+        <h3>No orders here</h3>
+        <p>New orders will appear when placed. Pull to refresh or wait for live updates.</p>
+        <button class="btn-primary-action" onclick="refreshOrders()">
+          <i class="fas fa-arrows-rotate"></i> Refresh now
+        </button>
+      </div>
+
+      <div id="order-list" class="order-grid" role="list"></div>
+
+    </section>
+  </main>
+
+  <!-- PENDING APPROVAL SCREEN -->
+  <div class="pending-screen" id="pendingApprovalScreen" style="display:none;">
+    <div class="pending-card">
+      <div class="pending-icon"><i class="fas fa-hourglass-half"></i></div>
+      <h1 class="pending-title">Application Under Review</h1>
+      <p class="pending-sub">Thanks for signing up, <strong id="pendingDriverFirstName">there</strong>! Your driver account is waiting on admin approval. You'll get access to the Dispatch Board and start seeing incoming orders as soon as you're approved — this usually takes less than 24 hours.</p>
+
+      <div class="pending-profile-card">
+        <div class="pending-profile-header">
+          <div class="pending-avatar" id="pendingAvatar"><i class="fas fa-user"></i></div>
+          <div>
+            <div class="pending-profile-name" id="pendingProfileName">—</div>
+            <span class="badge amber"><i class="fas fa-clock"></i> Pending Review</span>
+          </div>
+        </div>
+        <div class="pending-profile-grid">
+          <div class="pending-profile-item">
+            <span class="pending-label"><i class="fas fa-envelope"></i> Email</span>
+            <span class="pending-value" id="pendingEmail">—</span>
+          </div>
+          <div class="pending-profile-item">
+            <span class="pending-label"><i class="fas fa-phone"></i> Phone</span>
+            <span class="pending-value" id="pendingPhone">—</span>
+          </div>
+          <div class="pending-profile-item">
+            <span class="pending-label"><i class="fas fa-calendar"></i> Applied</span>
+            <span class="pending-value" id="pendingApplied">—</span>
+          </div>
+          <div class="pending-profile-item">
+            <span class="pending-label"><i class="fas fa-id-card"></i> Documents</span>
+            <span class="pending-value" id="pendingDocs">—</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="pending-actions">
+        <button class="btn-primary-action" id="pendingRefreshBtn"><i class="fas fa-arrows-rotate"></i> Check Status</button>
+        <button class="btn-secondary-action" id="pendingLogoutBtn"><i class="fas fa-sign-out-alt"></i> Log out</button>
+      </div>
+      <p class="pending-footnote">This page checks automatically — no need to keep refreshing.</p>
+    </div>
+  </div>
+
+  <!-- ORDER DETAIL MODAL -->
+  <div class="modal-backdrop" id="order-modal-backdrop" aria-hidden="true">
+    <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <div class="modal-header">
+        <h2 id="modal-title"><i class="fas fa-receipt"></i> Order Details</h2>
+        <button class="modal-close" onclick="closeModal('order-modal-backdrop')" aria-label="Close">
+          <i class="fas fa-xmark"></i>
+        </button>
+      </div>
+      <div class="modal-body" id="orderModalBody"></div>
+    </div>
+  </div>
+
+  <!-- PHOTO MODAL -->
+  <div class="modal-backdrop" id="photo-modal-backdrop" aria-hidden="true">
+    <div class="modal-panel modal-sm" role="dialog" aria-modal="true" aria-labelledby="photo-modal-title">
+      <div class="modal-header">
+        <h2 id="photo-modal-title"><i class="fas fa-camera"></i> Confirm Delivery</h2>
+        <button class="modal-close" onclick="closeModal('photo-modal-backdrop')" aria-label="Close">
+          <i class="fas fa-xmark"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-instruction">Take or upload a photo to confirm this delivery.</p>
+        <label class="upload-zone" for="deliveryPhoto">
+          <i class="fas fa-camera-retro"></i>
+          <span>Tap to take photo or browse</span>
+          <input type="file" id="deliveryPhoto" accept="image/*" capture="environment" aria-label="Select delivery photo">
+        </label>
+        <div id="photoPreview" class="photo-preview-wrap" style="display:none;">
+          <img id="previewImage" alt="Delivery confirmation preview">
+        </div>
+        <div class="modal-actions">
+          <button class="btn-secondary-action" onclick="closeModal('photo-modal-backdrop')">Cancel</button>
+          <button class="btn-primary-action" id="confirmDeliveryBtn" onclick="confirmDeliveryWithPhoto()" disabled>
+            <i class="fas fa-check"></i> Confirm Delivery
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROFILE MODAL -->
+  <div class="modal-backdrop" id="profile-modal-backdrop" aria-hidden="true">
+    <div class="modal-panel modal-sm" role="dialog" aria-modal="true" aria-labelledby="profile-modal-title">
+      <div class="modal-header">
+        <h2 id="profile-modal-title"><i class="fas fa-user"></i> My Profile</h2>
+        <button class="modal-close" onclick="closeModal('profile-modal-backdrop')" aria-label="Close">
+          <i class="fas fa-xmark"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="profile-photo-row">
+          <div class="profile-photo-wrap" id="profilePhotoWrap"><i class="fas fa-user"></i></div>
+          <label class="profile-photo-edit" for="profilePhotoInput">
+            <i class="fas fa-camera"></i> Change Photo
+            <input type="file" id="profilePhotoInput" accept="image/*" aria-label="Upload profile photo">
+          </label>
+        </div>
+        <div class="profile-info-list">
+          <div class="profile-info-row">
+            <span class="pending-label"><i class="fas fa-user"></i> Full Name</span>
+            <span class="pending-value" id="profileName">—</span>
+          </div>
+          <div class="profile-info-row">
+            <span class="pending-label"><i class="fas fa-envelope"></i> Email</span>
+            <span class="pending-value" id="profileEmail">—</span>
+          </div>
+          <div class="profile-info-row">
+            <span class="pending-label"><i class="fas fa-phone"></i> Phone</span>
+            <span class="pending-value" id="profilePhone">—</span>
+          </div>
+          <div class="profile-info-row">
+            <span class="pending-label"><i class="fas fa-calendar"></i> Member Since</span>
+            <span class="pending-value" id="profileSince">—</span>
+          </div>
+          <div class="profile-info-row">
+            <span class="pending-label"><i class="fas fa-shield-check"></i> Status</span>
+            <span class="badge green"><i class="fas fa-check"></i> Approved</span>
+          </div>
+        </div>
+        <div id="profile-alert"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHAT / MESSAGE ADMIN MODAL -->
+  <div class="modal-backdrop" id="chat-modal-backdrop" aria-hidden="true">
+    <div class="modal-panel modal-sm" role="dialog" aria-modal="true" aria-labelledby="chat-modal-title">
+      <div class="modal-header">
+        <h2 id="chat-modal-title"><i class="fas fa-comment-dots"></i> Message Admin Support</h2>
+        <button class="modal-close" onclick="closeModal('chat-modal-backdrop')" aria-label="Close">
+          <i class="fas fa-xmark"></i>
+        </button>
+      </div>
+      <div class="modal-body modal-body-chat">
+        <div class="driver-chat-messages" id="driverChatMessages"></div>
+        <div class="driver-chat-input-row">
+          <textarea id="driverChatInput" class="driver-chat-textarea" rows="1" placeholder="Type a message to admin…"></textarea>
+          <button class="btn-primary-action" id="driverChatSendBtn" aria-label="Send message"><i class="fas fa-paper-plane"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- NOTIFICATION CONTAINER -->
+  <div id="notification-container" aria-live="polite" aria-label="Notifications"></div>
+
+  <!-- LOADING OVERLAY -->
+  <div id="loading-overlay" class="loading-overlay" style="display:none;" aria-live="assertive">
+    <div class="loading-card">
+      <div class="spinner"></div>
+      <p>Processing…</p>
+    </div>
+  </div>
+
+  <script src="driver.js"></script>
+</body>
+</html>

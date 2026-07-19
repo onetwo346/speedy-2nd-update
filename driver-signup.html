@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Become a Driver – Speedy Delivery</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="speedy-sync.js"></script>
+  <script src="auth.js"></script>
+</head>
+<body>
+
+<div class="sd-auth-page" style="align-items:flex-start; padding-top: 40px;">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+
+        <div class="text-center mb-4">
+          <a href="index.html" class="sd-brand justify-content-center" style="color:var(--navy);">
+            <span class="sd-brand-icon">🚀</span>
+            <span>Speedy<strong>Delivery</strong></span>
+          </a>
+        </div>
+
+        <div class="sd-auth-card" style="max-width:100%;">
+          <div class="sd-auth-logo">🚗</div>
+          <h1 class="sd-auth-title">Join as a Driver</h1>
+          <p class="sd-auth-sub">Start earning by delivering across Winneba, Swedru, Nsaba, Nyakrom and Central Region.<br>Approval usually takes less than 24 hours.</p>
+
+          <div class="sd-alert sd-alert-info mb-4">
+            <i class="fas fa-info-circle me-2"></i>
+            <strong>What you'll need:</strong> A valid driver's license (front &amp; back) and a clear selfie for identity verification.
+          </div>
+
+          <div id="signup-alert"></div>
+
+          <form id="signup-form" novalidate>
+            <!-- Personal Info -->
+            <div class="sd-form-section">
+              <div class="sd-form-section-label"><i class="fas fa-user me-2"></i>Personal Information</div>
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="sd-label" for="fullName">Full Name <span class="text-danger">*</span></label>
+                  <input type="text" id="fullName" class="sd-input" placeholder="Your full legal name" required>
+                </div>
+                <div class="col-md-6">
+                  <label class="sd-label" for="phone">Phone Number <span class="text-danger">*</span></label>
+                  <input type="tel" id="phone" class="sd-input" placeholder="e.g. 0551234567" required>
+                </div>
+                <div class="col-12">
+                  <label class="sd-label" for="email">Email Address <span class="text-danger">*</span></label>
+                  <input type="email" id="email" class="sd-input" placeholder="your@email.com" required>
+                </div>
+                <div class="col-12">
+                  <label class="sd-label" for="homeAddress">Home Address <span class="text-danger">*</span></label>
+                  <textarea id="homeAddress" class="sd-input" rows="2" placeholder="e.g. House 25, Near Winneba Junction, Agona Swedru" required></textarea>
+                </div>
+              </div>
+            </div>
+
+            <!-- Password -->
+            <div class="sd-form-section">
+              <div class="sd-form-section-label"><i class="fas fa-lock me-2"></i>Set Password</div>
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="sd-label" for="password">Password <span class="text-danger">*</span></label>
+                  <input type="password" id="password" class="sd-input" placeholder="Min. 6 characters" autocomplete="new-password" required>
+                </div>
+                <div class="col-md-6">
+                  <label class="sd-label" for="confirmPassword">Confirm Password <span class="text-danger">*</span></label>
+                  <input type="password" id="confirmPassword" class="sd-input" placeholder="Repeat password" autocomplete="new-password" required>
+                </div>
+              </div>
+            </div>
+
+            <!-- License -->
+            <div class="sd-form-section">
+              <div class="sd-form-section-label d-flex justify-content-between align-items-center">
+                <span><i class="fas fa-id-card me-2"></i>Driver's License Photos</span>
+                <span class="sd-approved-badge no" id="licenseStatus">0 / 2 uploaded</span>
+              </div>
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="sd-label" for="licenseFront">License Front <span class="text-danger">*</span></label>
+                  <input type="file" id="licenseFront" class="sd-input" accept="image/*" capture="environment" required>
+                  <div id="licenseFrontPreview" class="mt-2" style="display:none;">
+                    <img id="licenseFrontImg" class="rounded" style="max-height:140px;max-width:100%;object-fit:cover;" alt="License front">
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <label class="sd-label" for="licenseBack">License Back <span class="text-danger">*</span></label>
+                  <input type="file" id="licenseBack" class="sd-input" accept="image/*" capture="environment" required>
+                  <div id="licenseBackPreview" class="mt-2" style="display:none;">
+                    <img id="licenseBackImg" class="rounded" style="max-height:140px;max-width:100%;object-fit:cover;" alt="License back">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Selfie -->
+            <div class="sd-form-section">
+              <div class="sd-form-section-label d-flex justify-content-between align-items-center">
+                <span><i class="fas fa-camera me-2"></i>Selfie Verification</span>
+                <span class="sd-approved-badge no" id="selfieStatus">0 / 1 uploaded</span>
+              </div>
+              <p class="sd-form-hint mb-2">Take a clear photo of your face in good lighting — no glasses or hats.</p>
+              <input type="file" id="selfie" class="sd-input" accept="image/*" capture="user" required>
+              <div id="selfiePreview" class="mt-2 text-center" style="display:none;">
+                <img id="selfieImg" class="rounded" style="max-height:220px;max-width:100%;object-fit:cover;" alt="Selfie">
+              </div>
+            </div>
+
+            <button type="submit" class="sd-btn sd-btn-primary w-100" id="signupBtn">
+              <i class="fas fa-paper-plane me-2"></i>Submit Application
+            </button>
+          </form>
+
+          <p class="text-center text-muted small mt-4 mb-0">
+            Already have an account? <a href="driver-login.html">Sign in</a>
+          </p>
+        </div>
+
+        <p class="text-center text-muted small mt-4">
+          <a href="index.html" class="text-muted">← Back to main site</a>
+        </p>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  let licenseFrontData = null, licenseBackData = null, selfieData = null;
+
+  function showAlert(msg, type) {
+    document.getElementById('signup-alert').innerHTML =
+      `<div class="sd-alert sd-alert-${type}">${msg}</div>`;
+  }
+
+  const readFile = (file) => new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = () => res(r.result);
+    r.onerror = () => rej(new Error('Read failed'));
+    r.readAsDataURL(file);
+  });
+
+  const compress = async (file, maxDim, q) => {
+    const orig = await readFile(file);
+    try {
+      const img = new Image();
+      await new Promise((res, rej) => { img.onload = res; img.onerror = rej; img.src = orig; });
+      const w = img.naturalWidth, h = img.naturalHeight;
+      const max = Math.max(w, h);
+      const s = max > maxDim ? maxDim / max : 1;
+      const tw = Math.round(w * s), th = Math.round(h * s);
+      const c = document.createElement('canvas');
+      c.width = tw; c.height = th;
+      c.getContext('2d').drawImage(img, 0, 0, tw, th);
+      return c.toDataURL('image/jpeg', q);
+    } catch { return orig; }
+  };
+
+  const updateStatus = () => {
+    const lc = (document.getElementById('licenseFront').files.length ? 1 : 0) +
+               (document.getElementById('licenseBack').files.length ? 1 : 0);
+    const ls = document.getElementById('licenseStatus');
+    ls.textContent = `${lc} / 2 uploaded`;
+    ls.className = `sd-approved-badge ${lc === 2 ? 'yes' : 'no'}`;
+
+    const sc = document.getElementById('selfie').files.length ? 1 : 0;
+    const ss = document.getElementById('selfieStatus');
+    ss.textContent = `${sc} / 1 uploaded`;
+    ss.className = `sd-approved-badge ${sc === 1 ? 'yes' : 'no'}`;
+  };
+
+  const attachPreview = (inputId, imgId, previewId, setter, maxDim, q) => {
+    const inp = document.getElementById(inputId);
+    inp.addEventListener('change', async () => {
+      updateStatus();
+      const file = inp.files[0];
+      if (!file) { document.getElementById(previewId).style.display = 'none'; setter(null); return; }
+      if (file.size > 4 * 1024 * 1024) {
+        inp.value = ''; updateStatus(); setter(null);
+        document.getElementById(previewId).style.display = 'none';
+        showAlert('Image must be under 4MB.', 'warning'); return;
+      }
+      const data = await compress(file, maxDim, q);
+      setter(data);
+      document.getElementById(imgId).src = data;
+      document.getElementById(previewId).style.display = 'block';
+    });
+  };
+
+  attachPreview('licenseFront', 'licenseFrontImg', 'licenseFrontPreview', v => { licenseFrontData = v; }, 1600, .85);
+  attachPreview('licenseBack', 'licenseBackImg', 'licenseBackPreview', v => { licenseBackData = v; }, 1600, .85);
+  attachPreview('selfie', 'selfieImg', 'selfiePreview', v => { selfieData = v; }, 1200, .80);
+
+  document.getElementById('signup-form').addEventListener('submit', async e => {
+    e.preventDefault();
+    const fullName       = document.getElementById('fullName').value.trim();
+    const email          = document.getElementById('email').value.trim();
+    const phone          = document.getElementById('phone').value.trim();
+    const homeAddress    = document.getElementById('homeAddress').value.trim();
+    const password       = document.getElementById('password').value;
+    const confirmPassword= document.getElementById('confirmPassword').value;
+
+    if (!fullName || !email || !phone || !homeAddress || !password) {
+      showAlert('Please fill in all required fields.', 'danger'); return;
+    }
+    if (password !== confirmPassword) { showAlert('Passwords do not match.', 'danger'); return; }
+    if (password.length < 6) { showAlert('Password must be at least 6 characters.', 'danger'); return; }
+    if (!licenseFrontData || !licenseBackData || !selfieData) {
+      showAlert('Please upload your license photos (front &amp; back) and a selfie.', 'danger'); return;
+    }
+
+    const btn = document.getElementById('signupBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Submitting…';
+
+    try {
+      const result = await speedyRegisterDriver({
+        fullName, email, phone, homeAddress, password,
+        licenseFront: licenseFrontData, licenseBack: licenseBackData, selfie: selfieData
+      });
+      if (!result.ok) {
+        showAlert(result.message || 'Registration failed. Please try again.', 'danger');
+        btn.disabled = false; btn.innerHTML = '<i class="fas fa-paper-plane me-2"></i>Submit Application'; return;
+      }
+
+      const loginRes = await speedyLogin({ role: 'driver', username: email, password });
+      if (!loginRes.ok) {
+        showAlert('Account created! Please <a href="driver-login.html">sign in</a> to continue.', 'success');
+        setTimeout(() => window.location.replace('driver-login.html'), 1500); return;
+      }
+
+      showAlert('🎉 Account created! Redirecting to your portal…', 'success');
+      setTimeout(() => window.location.replace('driver.html'), 800);
+    } catch(err) {
+      showAlert('Something went wrong. Please try again.', 'danger');
+      btn.disabled = false; btn.innerHTML = '<i class="fas fa-paper-plane me-2"></i>Submit Application';
+    }
+  });
+</script>
+</body>
+</html>
