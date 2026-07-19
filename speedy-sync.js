@@ -14,7 +14,7 @@
 
 // 1) SET THIS to your deployed backend URL after you deploy it
 //    (see backend/README.md). Example: 'https://speedy-backend.onrender.com/api'
-const SPEEDY_API_BASE = 'http://localhost:3001/api';
+const SPEEDY_API_BASE = 'https://speedy-delivery-service-kxzv.onrender.com/api';
 
 const speedyFetchJson = async (url, options) => {
   const controller = new AbortController();
