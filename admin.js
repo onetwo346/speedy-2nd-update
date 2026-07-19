@@ -800,14 +800,31 @@ document.addEventListener('DOMContentLoaded', () => {
   updateClock();
   setInterval(updateClock, 1000);
 
-  // Auto-refresh every 30s
+  // Fast poll (3s) — mirrors driver.js: catch new/changed orders quickly
+  // and only do a full re-render when something actually changed.
+  setInterval(() => {
+    const prevCount = allOrders.size;
+    const prevSnapshot = JSON.stringify(Array.from(allOrders.values()).map(o => `${o.referenceNumber}:${o.status}`));
+    loadOrders();
+    const newSnapshot = JSON.stringify(Array.from(allOrders.values()).map(o => `${o.referenceNumber}:${o.status}`));
+    if (allOrders.size !== prevCount || newSnapshot !== prevSnapshot) {
+      updateNavBadges();
+      const active = document.querySelector('.page-section.active');
+      if (active?.id === 'section-dashboard') renderDashboard();
+      if (active?.id === 'section-orders')   renderOrdersList();
+    }
+  }, 3000);
+
+  // Full refresh (5s) — same cadence as driver.js's secondary poll, in case
+  // something was missed by the change-detection pass above.
   refreshInterval = setInterval(() => {
     loadOrders();
     updateNavBadges();
     const active = document.querySelector('.page-section.active');
     if (active?.id === 'section-dashboard') renderDashboard();
     if (active?.id === 'section-orders')   renderOrdersList();
-  }, 30000);
+    if (active?.id === 'section-drivers')  renderDriversList();
+  }, 5000);
 });
 
 // Window-level exposures required by inline HTML handlers

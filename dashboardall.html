@@ -958,6 +958,7 @@
   </div>
 </div>
 
+<script src="speedy-sync.js"></script>
 <script>
 'use strict';
 
@@ -986,13 +987,14 @@ function toggleAuth(mode) {
   document.getElementById('registerForm').style.display = mode === 'register' ? '' : 'none';
 }
 
-function handleLogin() {
+async function handleLogin() {
   const email = document.getElementById('loginEmail').value.trim().toLowerCase();
   const pass  = document.getElementById('loginPassword').value;
   const errEl = document.getElementById('loginError');
 
   if (!email || !pass) { showAuthError(errEl, 'Please fill in all fields.'); return; }
 
+  if (typeof speedyKvPull === 'function') await speedyKvPull(USERS_KEY);
   const users = JSON.parse(localStorage.getItem(USERS_KEY) || '[]');
   const user  = users.find(u => u.email === email && u.password === pass);
 
@@ -1003,7 +1005,7 @@ function handleLogin() {
   showDashboard();
 }
 
-function handleRegister() {
+async function handleRegister() {
   const name  = document.getElementById('regName').value.trim();
   const phone = document.getElementById('regPhone').value.trim();
   const email = document.getElementById('regEmail').value.trim().toLowerCase();
@@ -1013,6 +1015,7 @@ function handleRegister() {
   if (!name || !phone || !email || !pass) { showAuthError(errEl, 'Please fill in all fields.'); return; }
   if (pass.length < 6) { showAuthError(errEl, 'Password must be at least 6 characters.'); return; }
 
+  if (typeof speedyKvPull === 'function') await speedyKvPull(USERS_KEY);
   const users = JSON.parse(localStorage.getItem(USERS_KEY) || '[]');
   if (users.find(u => u.email === email)) { showAuthError(errEl, 'Email already registered.'); return; }
 
@@ -1020,6 +1023,7 @@ function handleRegister() {
   users.push(newUser);
   localStorage.setItem(USERS_KEY, JSON.stringify(users));
   localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(newUser));
+  if (typeof speedyKvPush === 'function') speedyKvPush(USERS_KEY, users);
   currentUser = newUser;
   showDashboard();
 }
@@ -1419,10 +1423,17 @@ function loadOrders() {
     orders.clear();
     if (raw) { const obj = JSON.parse(raw); for (const [k,v] of Object.entries(obj)) orders.set(k, v); }
   } catch {}
+  // Pull latest orders from the shared backend so orders placed on other
+  // devices/browsers (e.g. admin, driver) show up here too.
+  if (typeof speedySyncOrders === 'function') speedySyncOrders();
 }
 
 function saveOrders() {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(Object.fromEntries(orders))); } catch {}
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(Object.fromEntries(orders)));
+    // Push this order up to the shared backend so admin/driver portals see it.
+    if (typeof speedyPushOrders === 'function') speedyPushOrders(Object.fromEntries(orders));
+  } catch {}
 }
 
 // ===== HELPERS =====
