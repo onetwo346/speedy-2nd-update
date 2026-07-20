@@ -101,9 +101,39 @@ function showDashboard() {
   initChat();
 }
 
+// ---- MOBILE MENU ----
+function initMobileMenu() {
+  const toggle = document.getElementById('mobileMenuToggle');
+  const navLinks = document.getElementById('navLinks');
+  
+  if (toggle && navLinks) {
+    toggle.addEventListener('click', () => {
+      navLinks.classList.toggle('open');
+      const icon = toggle.querySelector('i');
+      if (icon) {
+        icon.classList.toggle('fa-bars');
+        icon.classList.toggle('fa-times');
+      }
+    });
+    
+    // Close menu when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!navLinks.contains(e.target) && !toggle.contains(e.target)) {
+        navLinks.classList.remove('open');
+        const icon = toggle.querySelector('i');
+        if (icon) {
+          icon.classList.add('fa-bars');
+          icon.classList.remove('fa-times');
+        }
+      }
+    });
+  }
+}
+
 // ---- INITIALIZATION ----
 document.addEventListener('DOMContentLoaded', () => {
   checkAuth();
+  initMobileMenu();
 });
 
 function checkAuth() {

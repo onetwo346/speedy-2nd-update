@@ -84,8 +84,8 @@ body {
 .sidebar-brand {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 22px 20px;
+  gap: 6px;
+  padding: 8px 8px;
   border-bottom: 1px solid var(--border);
 }
 
@@ -133,7 +133,7 @@ body {
 
 .sidebar-nav {
   flex: 1;
-  padding: 16px 12px;
+  padding: 6px 6px;
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -177,7 +177,7 @@ body {
 }
 
 .sidebar-footer {
-  padding: 16px 20px;
+  padding: 6px 8px;
   border-top: 1px solid var(--border);
 }
 
@@ -290,26 +290,26 @@ body {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  padding: 22px;
+  padding: 8px;
   text-align: left;
-  margin-bottom: 24px;
+  margin-bottom: 10px;
   box-shadow: var(--shadow-card);
 }
 .pending-profile-header {
   display: flex;
   align-items: center;
-  gap: 14px;
-  padding-bottom: 18px;
-  margin-bottom: 18px;
+  gap: 8px;
+  padding-bottom: 6px;
+  margin-bottom: 6px;
   border-bottom: 1px solid var(--border);
 }
 .pending-avatar {
-  width: 48px;
-  height: 48px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   background: var(--teal-dim);
   color: var(--teal);
-  font-size: 18px;
+  font-size: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -317,10 +317,10 @@ body {
 }
 .pending-profile-name {
   font-family: var(--font-display);
-  font-size: 16px;
+  font-size: 11px;
   font-weight: 600;
   color: var(--text-1);
-  margin-bottom: 6px;
+  margin-bottom: 2px;
 }
 .pending-profile-grid {
   display: grid;
@@ -722,7 +722,7 @@ body {
 /* ── Orders Section ─────────────────────────────────────── */
 .orders-section {
   flex: 1;
-  padding: 28px 32px;
+  padding: 8px 12px;
 }
 
 .order-grid {
@@ -799,8 +799,8 @@ body {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 12px;
-  padding: 16px 18px 12px 22px;
+  gap: 6px;
+  padding: 6px 8px 4px 10px;
   border-bottom: 1px solid var(--border);
 }
 
@@ -844,7 +844,7 @@ body {
 
 /* ── Card Body ──────────────────────────────────────────── */
 .card-body {
-  padding: 14px 18px 14px 22px;
+  padding: 6px 8px 6px 10px;
 }
 
 .info-grid {
@@ -959,8 +959,8 @@ body {
 .card-foot {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 12px 18px 14px 22px;
+  gap: 4px;
+  padding: 6px 8px 6px 10px;
   border-top: 1px solid var(--border);
   flex-wrap: wrap;
 }
@@ -968,12 +968,12 @@ body {
 .btn-action {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 7px 14px;
+  gap: 3px;
+  padding: 3px 8px;
   border-radius: var(--radius-sm);
   border: 1px solid transparent;
   font-family: var(--font-ui);
-  font-size: 12px;
+  font-size: .65rem;
   font-weight: 600;
   cursor: pointer;
   transition: all var(--transition);
@@ -1076,7 +1076,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 18px 24px;
+  padding: 8px 10px;
   border-bottom: 1px solid var(--border);
 }
 .modal-header h2 {
@@ -1104,14 +1104,14 @@ body {
 .modal-close:hover { background: var(--red-dim); color: var(--red); border-color: rgba(244,63,94,0.3); }
 
 .modal-body {
-  padding: 24px;
+  padding: 8px;
   overflow-y: auto;
   flex: 1;
 }
 
 /* Modal detail tables */
 .modal-section {
-  margin-bottom: 24px;
+  margin-bottom: 8px;
 }
 .modal-section-title {
   font-size: 11px;
@@ -1402,8 +1402,8 @@ body {
   .main { padding-left: 0; }
 
   .topbar, .integrity-bar, .filters-row, .orders-section {
-    padding-left: 16px;
-    padding-right: 16px;
+    padding-left: 6px;
+    padding-right: 6px;
   }
 
   .order-grid {

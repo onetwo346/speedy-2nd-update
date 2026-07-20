@@ -126,6 +126,36 @@ window.showSection = async (name, btn) => {
 
 window.toggleSidebar = () => { document.getElementById('sidebar').classList.toggle('open'); };
 
+/* ── Mobile Swipe Gesture for Sidebar ───────────────────────────────────────── */
+let touchStartX = 0;
+let touchEndX = 0;
+
+document.addEventListener('touchstart', (e) => {
+  touchStartX = e.changedTouches[0].screenX;
+}, { passive: true });
+
+document.addEventListener('touchend', (e) => {
+  touchEndX = e.changedTouches[0].screenX;
+  handleSwipe();
+}, { passive: true });
+
+function handleSwipe() {
+  const swipeThreshold = 100;
+  const diff = touchStartX - touchEndX;
+  const sidebar = document.getElementById('sidebar');
+  
+  if (!sidebar) return;
+  
+  // Swipe right to open sidebar
+  if (touchEndX < touchStartX && Math.abs(diff) > swipeThreshold && touchStartX < 50) {
+    sidebar.classList.add('open');
+  }
+  // Swipe left to close sidebar
+  else if (touchEndX > touchStartX && Math.abs(diff) > swipeThreshold) {
+    sidebar.classList.remove('open');
+  }
+}
+
 /* ── Clock ───────────────────────────────────────── */
 const updateClock = () => {
   const clockEl = el('topbar-time');
