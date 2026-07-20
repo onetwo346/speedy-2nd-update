@@ -16,24 +16,37 @@ const app = express();
 app.use(cors());
 app.use(express.json({ limit: '15mb' }));
 
+// Log environment variables on startup
+console.log('=== SPEEDY DELIVERY BACKEND STARTUP ===');
+console.log('JSONBIN_KEY set:', JSONBIN_KEY !== 'your-jsonbin-api-key');
+console.log('JSONBIN_BIN_ID set:', JSONBIN_BIN_ID !== 'your-jsonbin-bin-id');
+console.log('========================================');
+
 /* ---------- JSONBin.io storage ---------- */
 async function readStore() {
   try {
+    console.log('Reading from JSONBin.io...');
     const response = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`, {
       headers: { 'X-Master-Key': JSONBIN_KEY }
     });
-    if (!response.ok) return { orders: {}, drivers: [], kv: {} };
+    console.log('JSONBin.io response status:', response.status);
+    if (!response.ok) {
+      console.log('JSONBin.io response not ok, returning empty store');
+      return { orders: {}, drivers: [], kv: {} };
+    }
     const data = await response.json();
+    console.log('JSONBin.io data loaded successfully');
     return data.record || { orders: {}, drivers: [], kv: {} };
   } catch (e) {
-    console.error('readStore error', e);
+    console.error('readStore error:', e);
     return { orders: {}, drivers: [], kv: {} };
   }
 }
 
 async function writeStore(store) {
   try {
-    await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`, {
+    console.log('Writing to JSONBin.io...');
+    const response = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -41,8 +54,9 @@ async function writeStore(store) {
       },
       body: JSON.stringify(store)
     });
+    console.log('JSONBin.io write response status:', response.status);
   } catch (e) {
-    console.error('writeStore error', e);
+    console.error('writeStore error:', e);
   }
 }
 

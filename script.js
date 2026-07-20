@@ -100,6 +100,8 @@ function loadOrders() {
       const obj = JSON.parse(raw);
       for (const [k, v] of Object.entries(obj)) orders.set(k, v);
     }
+    // Pull latest orders from cloud backend
+    if (typeof speedySyncOrders === 'function') speedySyncOrders();
   } catch(e) { console.warn('loadOrders error', e); }
 }
 
@@ -107,6 +109,8 @@ function saveOrders() {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(Object.fromEntries(orders)));
     broadcast({ type: 'ordersUpdated', ts: Date.now() });
+    // Push orders to cloud backend so dispatchers can see them
+    if (typeof speedyPushOrders === 'function') speedyPushOrders(Object.fromEntries(orders));
   } catch(e) { showAlert('Could not save order. Please try again.', 'danger', 'order-form-alert'); }
 }
 
@@ -694,6 +698,47 @@ function initNavScroll() {
   });
 }
 
+// ---- MOBILE MENU ----
+function initMobileMenu() {
+  const toggle = document.getElementById('mobileMenuToggle');
+  const navLinks = document.getElementById('navLinks');
+  
+  if (toggle && navLinks) {
+    toggle.addEventListener('click', () => {
+      navLinks.classList.toggle('open');
+      const icon = toggle.querySelector('i');
+      if (icon) {
+        icon.classList.toggle('fa-bars');
+        icon.classList.toggle('fa-times');
+      }
+    });
+    
+    // Close menu when clicking a link
+    navLinks.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => {
+        navLinks.classList.remove('open');
+        const icon = toggle.querySelector('i');
+        if (icon) {
+          icon.classList.add('fa-bars');
+          icon.classList.remove('fa-times');
+        }
+      });
+    });
+    
+    // Close menu when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!navLinks.contains(e.target) && !toggle.contains(e.target)) {
+        navLinks.classList.remove('open');
+        const icon = toggle.querySelector('i');
+        if (icon) {
+          icon.classList.add('fa-bars');
+          icon.classList.remove('fa-times');
+        }
+      }
+    });
+  }
+}
+
 // ---- INIT ----
 document.addEventListener('DOMContentLoaded', () => {
   if (!el('order-form')) return; // only run on customer page
@@ -703,6 +748,7 @@ document.addEventListener('DOMContentLoaded', () => {
   populateStoreDropdown();
   initSmoothScroll();
   initNavScroll();
+  initMobileMenu();
 
   if (typeof BroadcastChannel !== 'undefined') {
     broadcastChannel = new BroadcastChannel(CHANNEL_NAME);

@@ -266,7 +266,7 @@ body {
 /* ── PAGE SECTIONS ──────────────────────────────────────── */
 .page-section {
   display: none;
-  padding: 28px;
+  padding: 8px;
   animation: fadeUp 0.2s ease;
 }
 .page-section.active { display: block; }

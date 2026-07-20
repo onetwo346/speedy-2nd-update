@@ -1074,6 +1074,36 @@ const setupPendingApprovalWatch = () => {
   });
 };
 
+/* ── Mobile Swipe Gesture for Sidebar ───────────────────────────────────────── */
+let driverTouchStartX = 0;
+let driverTouchEndX = 0;
+
+document.addEventListener('touchstart', (e) => {
+  driverTouchStartX = e.changedTouches[0].screenX;
+}, { passive: true });
+
+document.addEventListener('touchend', (e) => {
+  driverTouchEndX = e.changedTouches[0].screenX;
+  handleDriverSwipe();
+}, { passive: true });
+
+function handleDriverSwipe() {
+  const swipeThreshold = 100;
+  const diff = driverTouchStartX - driverTouchEndX;
+  const sidebar = document.getElementById('driverSidebar');
+  
+  if (!sidebar) return;
+  
+  // Swipe right from left edge to open sidebar
+  if (driverTouchEndX < driverTouchStartX && Math.abs(diff) > swipeThreshold && driverTouchStartX < 50) {
+    sidebar.classList.add('open');
+  }
+  // Swipe left to close sidebar
+  else if (driverTouchEndX > driverTouchStartX && Math.abs(diff) > swipeThreshold) {
+    sidebar.classList.remove('open');
+  }
+}
+
 // Runs the driver auth/approval gate. Returns the approved driver record, or null
 // if the caller should stop (either redirected away, or showing the pending screen).
 const runDriverAuthGate = () => {

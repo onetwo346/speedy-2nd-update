@@ -84,7 +84,7 @@ img { max-width: 100%; height: auto; }
 .sd-brand strong { color: var(--brand); font-weight: 800; }
 .sd-brand-icon { font-size: 1.5rem; }
 
-.sd-nav-links { display: flex; gap: 4px; }
+.sd-nav-links { display: flex; gap: 4px; align-items: center; }
 .sd-nav-link {
   color: rgba(255,255,255,.75);
   font-size: .9rem;
@@ -96,6 +96,22 @@ img { max-width: 100%; height: auto; }
 .sd-nav-link:hover {
   color: var(--white);
   background: rgba(255,255,255,.08);
+}
+
+/* Mobile menu toggle */
+.sd-mobile-toggle {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--white);
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 8px;
+  transition: background .2s;
+}
+.sd-mobile-toggle:hover {
+  background: rgba(255,255,255,.1);
 }
 
 /* ---- HERO ---- */
@@ -160,31 +176,31 @@ img { max-width: 100%; height: auto; }
   background: rgba(255,255,255,.1);
   border: 1px solid rgba(255,255,255,.15);
   border-radius: 20px;
-  padding: 16px 28px;
+  padding: 6px 10px;
   backdrop-filter: blur(12px);
 }
-.sd-stat { text-align: center; padding: 0 20px; }
+.sd-stat { text-align: center; padding: 0 6px; }
 .sd-stat-num {
   display: block;
-  font-size: 1.8rem;
+  font-size: 1rem;
   font-weight: 800;
   color: var(--white);
   line-height: 1;
 }
-.sd-stat-num small { font-size: 1rem; font-weight: 600; color: var(--brand); }
-.sd-stat-label { font-size: .75rem; color: rgba(255,255,255,.65); font-weight: 500; letter-spacing: .04em; text-transform: uppercase; }
-.sd-stat-divider { width: 1px; height: 40px; background: rgba(255,255,255,.2); }
+.sd-stat-num small { font-size: .6rem; font-weight: 600; color: var(--brand); }
+.sd-stat-label { font-size: .55rem; color: rgba(255,255,255,.65); font-weight: 500; letter-spacing: .04em; text-transform: uppercase; }
+.sd-stat-divider { width: 1px; height: 20px; background: rgba(255,255,255,.2); }
 
 /* ---- BUTTONS ---- */
 .sd-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 13px 28px;
+  padding: 6px 12px;
   border-radius: var(--radius-sm);
   font-family: var(--font);
   font-weight: 600;
-  font-size: .95rem;
+  font-size: .75rem;
   cursor: pointer;
   transition: all .2s;
   border: 2px solid transparent;
@@ -279,47 +295,47 @@ img { max-width: 100%; height: auto; }
   background: var(--white);
   border: 1.5px solid var(--border);
   border-radius: var(--radius);
-  padding: 36px 28px;
+  padding: 8px 6px;
   height: 100%;
   position: relative;
   transition: all .25s;
 }
 .sd-step-card:hover {
-  transform: translateY(-6px);
+  transform: translateY(-4px);
   box-shadow: var(--shadow-lg);
   border-color: var(--brand);
 }
 .sd-step-num {
-  font-size: 3.5rem;
+  font-size: 1.5rem;
   font-weight: 900;
   color: var(--brand-light);
   line-height: 1;
-  margin-bottom: 12px;
+  margin-bottom: 4px;
   letter-spacing: -.03em;
   /* number sits behind icon */
   position: absolute;
-  top: 20px;
-  right: 24px;
+  top: 6px;
+  right: 8px;
 }
 .sd-step-icon {
-  font-size: 2.2rem;
+  font-size: 1.2rem;
   color: var(--brand);
-  margin-bottom: 16px;
+  margin-bottom: 6px;
 }
 .sd-step-card h5 {
-  font-size: 1.1rem;
+  font-size: .75rem;
   font-weight: 700;
-  margin-bottom: 8px;
+  margin-bottom: 2px;
   color: var(--text);
 }
-.sd-step-card p { color: var(--text-muted); font-size: .92rem; margin: 0; }
+.sd-step-card p { color: var(--text-muted); font-size: .7rem; margin: 0; }
 
 /* ---- STORE CARDS ---- */
 .sd-store-card {
   background: var(--white);
   border: 1.5px solid var(--border);
   border-radius: var(--radius);
-  padding: 28px;
+  padding: 8px;
   height: 100%;
   cursor: pointer;
   transition: all .25s;
@@ -337,33 +353,33 @@ img { max-width: 100%; height: auto; }
   transition: transform .3s;
 }
 .sd-store-card:hover {
-  transform: translateY(-5px);
+  transform: translateY(-3px);
   box-shadow: var(--shadow-lg);
   border-color: transparent;
 }
 .sd-store-card:hover::before { transform: scaleX(1); }
 
 .sd-store-icon {
-  font-size: 2.8rem;
-  margin-bottom: 14px;
+  font-size: 1.2rem;
+  margin-bottom: 4px;
   display: block;
 }
 .sd-store-name {
-  font-size: 1.15rem;
+  font-size: .75rem;
   font-weight: 700;
   color: var(--text);
-  margin-bottom: 4px;
+  margin-bottom: 2px;
 }
 .sd-store-type {
-  font-size: .8rem;
+  font-size: .6rem;
   color: var(--brand);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: .06em;
-  margin-bottom: 10px;
+  margin-bottom: 4px;
 }
-.sd-store-desc { font-size: .88rem; color: var(--text-muted); margin-bottom: 16px; }
-.sd-store-rating { font-size: .85rem; font-weight: 600; color: var(--text); }
+.sd-store-desc { font-size: .65rem; color: var(--text-muted); margin-bottom: 6px; }
+.sd-store-rating { font-size: .65rem; font-weight: 600; color: var(--text); }
 .sd-store-rating i { color: #F59E0B; }
 
 /* ---- FORM ---- */
@@ -371,7 +387,7 @@ img { max-width: 100%; height: auto; }
   background: var(--white);
   border-radius: var(--radius);
   box-shadow: var(--shadow-lg);
-  padding: 44px;
+  padding: 12px;
 }
 
 .sd-form-section {
@@ -453,24 +469,24 @@ img { max-width: 100%; height: auto; }
   font-weight: 700;
   font-size: 1rem;
 }
-.sd-payment-body { padding: 24px; }
+.sd-payment-body { padding: 8px; }
 .sd-payment-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 0;
+  padding: 4px 0;
   border-bottom: 1px solid var(--border);
-  font-size: .95rem;
+  font-size: .7rem;
 }
 .sd-payment-row:last-of-type { border-bottom: none; }
 .sd-payment-note {
   background: var(--brand-light);
   color: var(--brand-dark);
   border-radius: var(--radius-sm);
-  padding: 10px 14px;
-  font-size: .82rem;
-  margin-top: 16px;
-  margin-bottom: 20px;
+  padding: 4px 8px;
+  font-size: .65rem;
+  margin-top: 6px;
+  margin-bottom: 8px;
 }
 .sd-ref-pill {
   background: var(--brand);
@@ -566,12 +582,12 @@ img { max-width: 100%; height: auto; }
   background: var(--white);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
-  padding: 32px;
+  padding: 10px;
 }
 .sd-track-title {
   font-weight: 800;
-  font-size: 1.2rem;
-  margin-bottom: 20px;
+  font-size: .75rem;
+  margin-bottom: 8px;
   color: var(--text);
 }
 .sd-progress-bar {
@@ -643,29 +659,29 @@ img { max-width: 100%; height: auto; }
   background: var(--surface);
   border: 1.5px solid var(--border);
   border-radius: var(--radius);
-  padding: 32px 24px;
+  padding: 10px 8px;
   height: 100%;
   transition: all .25s;
 }
 .sd-support-card:hover {
-  transform: translateY(-4px);
+  transform: translateY(-3px);
   box-shadow: var(--shadow);
   border-color: var(--brand);
 }
 .sd-support-icon {
-  font-size: 2rem;
+  font-size: 1rem;
   color: var(--brand);
-  margin-bottom: 14px;
+  margin-bottom: 4px;
 }
 .sd-support-card h6 {
   font-weight: 700;
-  font-size: .95rem;
-  margin-bottom: 8px;
+  font-size: .7rem;
+  margin-bottom: 3px;
   color: var(--text);
 }
 .sd-support-card a {
   color: var(--text-muted);
-  font-size: .9rem;
+  font-size: .65rem;
 }
 .sd-support-card a:hover { color: var(--brand); }
 
@@ -780,7 +796,7 @@ img { max-width: 100%; height: auto; }
   background: var(--white);
   border: 1.5px solid var(--border);
   border-radius: var(--radius);
-  padding: 22px;
+  padding: 8px;
   height: 100%;
   transition: all .2s;
 }
@@ -790,20 +806,20 @@ img { max-width: 100%; height: auto; }
 }
 .sd-order-ref {
   font-weight: 700;
-  font-size: .9rem;
+  font-size: .7rem;
   color: var(--brand);
   font-family: monospace;
 }
 .sd-order-customer {
   font-weight: 600;
-  font-size: 1rem;
+  font-size: .75rem;
   color: var(--text);
-  margin: 6px 0 4px;
+  margin: 2px 0 1px;
 }
 .sd-order-meta {
-  font-size: .82rem;
+  font-size: .65rem;
   color: var(--text-muted);
-  margin-bottom: 12px;
+  margin-bottom: 4px;
 }
 .sd-status-badge {
   display: inline-flex;
@@ -875,26 +891,26 @@ img { max-width: 100%; height: auto; }
   background: var(--white);
   border-radius: var(--radius);
   box-shadow: var(--shadow-lg);
-  padding: 44px;
+  padding: 12px;
   width: 100%;
 }
 .sd-auth-logo {
   text-align: center;
-  font-size: 2.5rem;
-  margin-bottom: 8px;
+  font-size: 1.4rem;
+  margin-bottom: 3px;
 }
 .sd-auth-title {
-  font-size: 1.5rem;
+  font-size: .9rem;
   font-weight: 800;
   text-align: center;
   color: var(--text);
-  margin-bottom: 4px;
+  margin-bottom: 2px;
 }
 .sd-auth-sub {
-  font-size: .88rem;
+  font-size: .65rem;
   color: var(--text-muted);
   text-align: center;
-  margin-bottom: 28px;
+  margin-bottom: 10px;
 }
 
 /* ---- DRIVER DETAIL ---- */
@@ -902,7 +918,7 @@ img { max-width: 100%; height: auto; }
   background: var(--white);
   border: 1.5px solid var(--border);
   border-radius: var(--radius);
-  padding: 22px;
+  padding: 8px;
   cursor: pointer;
   transition: all .2s;
 }
@@ -953,14 +969,32 @@ img { max-width: 100%; height: auto; }
 
 /* ---- RESPONSIVE ---- */
 @media (max-width: 768px) {
-  .sd-hero { padding-top: calc(var(--nav-h) + 32px); padding-bottom: 48px; }
-  .sd-hero-stats { flex-direction: column; gap: 16px; }
+  .sd-hero { padding-top: calc(var(--nav-h) + 16px); padding-bottom: 20px; }
+  .sd-hero-stats { flex-direction: column; gap: 6px; padding: 4px 8px; }
   .sd-stat-divider { width: 60px; height: 1px; }
-  .sd-section { padding: 52px 0; }
-  .sd-card-elevated { padding: 24px; }
-  .sd-auth-card { padding: 28px 20px; }
+  .sd-section { padding: 20px 0; }
+  .sd-card-elevated { padding: 8px; }
+  .sd-auth-card { padding: 8px 6px; }
   .sd-track-input-group { flex-direction: column; }
-  .sd-nav-links { display: none; }
+  
+  /* Mobile menu */
+  .sd-mobile-toggle { display: flex; align-items: center; justify-content: center; }
+  .sd-nav-links {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--navy);
+    flex-direction: column;
+    padding: 6px;
+    gap: 3px;
+    border-top: 1px solid rgba(255,255,255,.1);
+    box-shadow: 0 8px 24px rgba(0,0,0,.2);
+  }
+  .sd-nav-links.open { display: flex; }
+  .sd-nav-link { padding: 6px 8px; width: 100%; text-align: center; }
+  .sd-nav-links .sd-btn { width: 100%; margin-top: 3px; }
 }
 
 /* ---- UTILITIES ---- */
@@ -1382,7 +1416,7 @@ img { max-width: 100%; height: auto; }
   background: var(--white);
   border: 1.5px solid var(--border);
   border-radius: var(--radius);
-  padding: 24px;
+  padding: 8px;
   transition: all .2s;
 }
 
@@ -1395,8 +1429,8 @@ img { max-width: 100%; height: auto; }
   display: flex;
   justify-content: space-between;
   align-items: start;
-  margin-bottom: 16px;
-  padding-bottom: 16px;
+  margin-bottom: 6px;
+  padding-bottom: 6px;
   border-bottom: 1px solid var(--border);
 }
 
@@ -1572,7 +1606,7 @@ img { max-width: 100%; height: auto; }
   background: var(--white);
   border: 1.5px solid var(--border);
   border-radius: var(--radius);
-  padding: 28px;
+  padding: 8px;
   text-align: center;
   cursor: pointer;
   transition: all .3s;
@@ -1581,32 +1615,33 @@ img { max-width: 100%; height: auto; }
 }
 
 .sd-preview-card:hover {
-  transform: translateY(-8px);
+  transform: translateY(-4px);
   box-shadow: var(--shadow-lg);
   border-color: var(--brand);
 }
 
 .sd-preview-icon {
-  width: 64px;
-  height: 64px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.5rem;
+  font-size: .8rem;
   color: var(--white);
-  margin: 0 auto 16px;
+  margin: 0 auto 6px;
 }
 
 .sd-preview-card h5 {
-  font-size: 1.1rem;
+  font-size: .7rem;
   font-weight: 700;
-  margin-bottom: 8px;
+  margin-bottom: 2px;
   color: var(--text);
 }
 
 .sd-preview-card p {
   margin-bottom: 0;
+  font-size: .65rem;
 }
 
 .sd-preview-arrow {
@@ -1644,7 +1679,7 @@ img { max-width: 100%; height: auto; }
   background: var(--white);
   border: 1.5px solid var(--border);
   border-radius: var(--radius);
-  padding: 24px;
+  padding: 8px;
   text-align: center;
   cursor: pointer;
   transition: all .3s;
@@ -1654,43 +1689,43 @@ img { max-width: 100%; height: auto; }
 }
 
 .sd-store-card:hover {
-  transform: translateY(-6px);
+  transform: translateY(-3px);
   box-shadow: var(--shadow-lg);
   border-color: var(--brand);
 }
 
 .sd-store-icon {
-  font-size: 2.5rem;
+  font-size: 1rem;
   display: block;
-  margin-bottom: 12px;
+  margin-bottom: 3px;
 }
 
 .sd-store-name {
-  font-size: 1.25rem;
+  font-size: .65rem;
   font-weight: 700;
-  margin-bottom: 4px;
+  margin-bottom: 1px;
   color: var(--text);
 }
 
 .sd-store-type {
-  font-size: .85rem;
+  font-size: .55rem;
   color: var(--text-muted);
-  margin-bottom: 12px;
+  margin-bottom: 3px;
   text-transform: uppercase;
   letter-spacing: .04em;
 }
 
 .sd-store-desc {
-  font-size: .9rem;
+  font-size: .6rem;
   color: var(--text-muted);
-  margin-bottom: 16px;
-  line-height: 1.5;
+  margin-bottom: 6px;
+  line-height: 1.2;
 }
 
 .sd-store-rating {
   color: #FFB800;
   font-weight: 600;
-  font-size: .9rem;
+  font-size: .6rem;
 }
 
 
@@ -1699,14 +1734,14 @@ img { max-width: 100%; height: auto; }
   background: var(--white);
   border: 1.5px solid var(--border);
   border-radius: var(--radius);
-  padding: 28px;
+  padding: 8px;
   box-shadow: var(--shadow);
 }
 
 .sd-track-title {
-  font-size: 1.3rem;
+  font-size: .65rem;
   font-weight: 700;
-  margin-bottom: 8px;
+  margin-bottom: 4px;
   color: var(--text);
 }
 

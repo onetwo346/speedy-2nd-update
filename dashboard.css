@@ -180,6 +180,22 @@ a:hover { text-decoration: underline; }
 .col-md-6 { width: 50%; padding: 0 10px; }
 .col-12 { width: 100%; padding: 0 10px; }
 
+/* Mobile menu toggle */
+.sd-mobile-toggle {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--white);
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 8px;
+  transition: background .2s;
+}
+.sd-mobile-toggle:hover {
+  background: rgba(255,255,255,.1);
+}
+
 @media (max-width: 900px) {
   .col-lg-8, .col-lg-4, .col-lg-6 { width: 100%; }
   .sd-quick-stats { gap: 12px; }
@@ -187,6 +203,24 @@ a:hover { text-decoration: underline; }
 }
 @media (max-width: 600px) {
   .col-md-6 { width: 100%; }
+  
+  /* Mobile menu */
+  .sd-mobile-toggle { display: flex; align-items: center; justify-content: center; }
+  .sd-nav-links {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--navy);
+    flex-direction: column;
+    padding: 6px;
+    gap: 3px;
+    border-top: 1px solid rgba(255,255,255,.1);
+    box-shadow: 0 8px 24px rgba(0,0,0,.2);
+  }
+  .sd-nav-links.open { display: flex; }
+  .sd-nav-links .sd-btn { width: 100%; margin-top: 3px; }
 }
 
 /* ===== STORE CARDS ===== */
@@ -194,7 +228,7 @@ a:hover { text-decoration: underline; }
   background: var(--surface);
   border: 1.5px solid var(--border);
   border-radius: var(--radius);
-  padding: 22px;
+  padding: 6px;
   cursor: pointer;
   transition: all var(--transition);
   position: relative;
@@ -211,13 +245,13 @@ a:hover { text-decoration: underline; }
 .sd-store-card:hover {
   border-color: var(--store-color, var(--brand));
   box-shadow: var(--shadow-md);
-  transform: translateY(-3px);
+  transform: translateY(-2px);
 }
-.sd-store-icon { font-size: 2.4rem; display: block; margin-bottom: 10px; }
-.sd-store-name { font-size: 1.1rem; font-weight: 700; color: var(--text); margin-bottom: 3px; }
-.sd-store-type { font-size: .78rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 8px; }
-.sd-store-desc { font-size: .85rem; color: var(--text-muted); line-height: 1.5; }
-.sd-store-rating { font-size: .82rem; font-weight: 700; color: #F59E0B; }
+.sd-store-icon { font-size: 1rem; display: block; margin-bottom: 3px; }
+.sd-store-name { font-size: .65rem; font-weight: 700; color: var(--text); margin-bottom: 1px; }
+.sd-store-type { font-size: .55rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 3px; }
+.sd-store-desc { font-size: .6rem; color: var(--text-muted); line-height: 1.2; }
+.sd-store-rating { font-size: .6rem; font-weight: 700; color: #F59E0B; }
 
 /* ===== SIDEBAR / QUICK ORDER ===== */
 .sd-order-sidebar {
