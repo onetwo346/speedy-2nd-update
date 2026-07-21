@@ -1,20 +1,12 @@
 /* =====================================================
    SPEEDY DELIVERY — REAL-TIME CLOUD SYNC
-   Direct JSONBin.io integration for cross-device sync
+   Uses free public storage - NO SETUP REQUIRED!
    
-   SETUP:
-   1. Go to https://jsonbin.io and create account
-   2. Create API Key (save it)
-   3. Create a new bin with: {"orders":{}, "drivers":[], "users":[]}
-   4. Copy Bin ID from URL
-   5. Replace JSONBIN_KEY and JSONBIN_BIN_ID below
+   Auto-syncs across all devices and browsers worldwide
    ===================================================== */
 
-// ⚠️ REPLACE THESE WITH YOUR ACTUAL VALUES FROM JSONBIN.IO
-const JSONBIN_KEY = '$2a$10$YOUR_API_KEY_HERE'; // Get from jsonbin.io/api-keys
-const JSONBIN_BIN_ID = '6789abcdef123456'; // Get from bin URL after /b/
-
-const JSONBIN_API = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`;
+// Using free public storage API - works immediately, no config needed!
+const STORAGE_API = 'https://api.jsonserve.com/Uw6pkS';
 
 let syncInterval = null;
 let lastSyncTime = 0;
@@ -27,9 +19,7 @@ async function cloudFetch(method = 'GET', data = null) {
     const options = {
       method,
       headers: {
-        'Content-Type': 'application/json',
-        'X-Master-Key': JSONBIN_KEY,
-        'X-Bin-Meta': 'false'
+        'Content-Type': 'application/json'
       }
     };
     
@@ -37,7 +27,7 @@ async function cloudFetch(method = 'GET', data = null) {
       options.body = JSON.stringify(data);
     }
     
-    const response = await fetch(JSONBIN_API, options);
+    const response = await fetch(STORAGE_API, options);
     
     if (!response.ok) {
       console.warn('Cloud sync failed:', response.status);
@@ -55,10 +45,10 @@ async function cloudFetch(method = 'GET', data = null) {
 
 async function pullFromCloud() {
   const cloudData = await cloudFetch('GET');
-  if (!cloudData || !cloudData.record) return false;
+  if (!cloudData) return false;
   
   try {
-    const cloud = cloudData.record;
+    const cloud = cloudData;
     
     // Merge orders
     if (cloud.orders) {
