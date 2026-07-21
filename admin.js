@@ -74,12 +74,15 @@ const loadOrders = async () => {
   }
 };
 
-/** Save allOrders to localStorage AND push to server. */
+/** Save allOrders to localStorage AND push to cloud. */
 const saveOrders = async () => {
   try {
     const obj = Object.fromEntries(allOrders);
     localStorage.setItem(ORDERS_KEY, JSON.stringify(obj));
-    if (typeof speedyPushOrders === 'function') await speedyPushOrders(obj);
+    // Push to cloud for real-time sync across all devices
+    if (window.speedySync && typeof window.speedySync.syncOrders === 'function') {
+      await window.speedySync.syncOrders();
+    }
   } catch (e) { toast('Failed to save order update.', 'danger'); }
 };
 
@@ -92,10 +95,13 @@ const getDrivers = async () => {
   } catch { return []; }
 };
 
-/** Save driver list to localStorage AND push to server. */
+/** Save driver list to localStorage AND push to cloud. */
 const saveDrivers = async (drivers) => {
   localStorage.setItem('speedyDrivers', JSON.stringify(drivers));
-  if (typeof speedyPushDrivers === 'function') await speedyPushDrivers(drivers);
+  // Push to cloud for real-time sync across all devices
+  if (window.speedySync && typeof window.speedySync.syncDrivers === 'function') {
+    await window.speedySync.syncDrivers();
+  }
 };
 
 /* ── Section navigation ──────────────────────────── */

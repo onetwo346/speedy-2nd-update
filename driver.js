@@ -49,7 +49,10 @@ const saveOrders = () => {
   try {
     localStorage.setItem('speedyDeliveryOrders', JSON.stringify(Object.fromEntries(orders)));
     console.log('💾 Orders saved');
-    if (typeof speedyPushOrders === 'function') speedyPushOrders(Object.fromEntries(orders));
+    // Push to cloud for real-time sync across all devices
+    if (window.speedySync && typeof window.speedySync.syncOrders === 'function') {
+      window.speedySync.syncOrders();
+    }
   } catch (e) {
     console.error('Error saving orders:', e);
     showNotification('Error saving order. Please try again.', 'error');

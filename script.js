@@ -109,8 +109,10 @@ function saveOrders() {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(Object.fromEntries(orders)));
     broadcast({ type: 'ordersUpdated', ts: Date.now() });
-    // Push orders to cloud backend so dispatchers can see them
-    if (typeof speedyPushOrders === 'function') speedyPushOrders(Object.fromEntries(orders));
+    // Push to cloud for real-time sync across all devices
+    if (window.speedySync && typeof window.speedySync.syncOrders === 'function') {
+      window.speedySync.syncOrders();
+    }
   } catch(e) { showAlert('Could not save order. Please try again.', 'danger', 'order-form-alert'); }
 }
 

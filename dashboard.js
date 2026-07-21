@@ -556,7 +556,10 @@ function loadOrders() {
 function saveOrders() {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(Object.fromEntries(orders)));
-    if (typeof speedyPushOrders === 'function') speedyPushOrders(Object.fromEntries(orders));
+    // Push to cloud for real-time sync across all devices
+    if (window.speedySync && typeof window.speedySync.syncOrders === 'function') {
+      window.speedySync.syncOrders();
+    }
   } catch(e) {
     console.warn('Could not save orders', e);
   }
