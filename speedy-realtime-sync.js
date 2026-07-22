@@ -1,11 +1,11 @@
 /* =====================================================
    SPEEDY DELIVERY — REAL-TIME SYNC
-   Uses your existing Render backend - Already configured!
-   NO ADDITIONAL SETUP REQUIRED!
+   Direct cloud storage via JSONBlob - no account, no
+   backend server, no sleep delays. Already configured!
    ===================================================== */
 
-// Your existing Render backend (already set up with JSONBin.io)
-const BACKEND_API = 'https://speedy-delivery-service-kxzv.onrender.com/api';
+// Shared cloud storage blob (already created & tested)
+const CLOUD_URL = 'https://jsonblob.com/api/jsonBlob/019f876b-7716-77a3-8a2a-8c21bf5e9a5b';
 
 let syncInterval = null;
 let lastSyncTime = 0;
@@ -13,12 +13,13 @@ const SYNC_INTERVAL_MS = 3000; // Sync every 3 seconds
 
 /* ========== CORE SYNC ENGINE ========== */
 
-async function cloudFetch(endpoint, method = 'GET', data = null) {
+async function cloudFetch(method = 'GET', data = null) {
   try {
     const options = {
       method,
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
       }
     };
     
@@ -26,7 +27,7 @@ async function cloudFetch(endpoint, method = 'GET', data = null) {
       options.body = JSON.stringify(data);
     }
     
-    const response = await fetch(`${BACKEND_API}${endpoint}`, options);
+    const response = await fetch(CLOUD_URL, options);
     
     if (!response.ok) {
       console.warn('Cloud sync failed:', response.status);
@@ -44,27 +45,32 @@ async function cloudFetch(endpoint, method = 'GET', data = null) {
 
 async function pullFromCloud() {
   try {
-    // Pull orders
-    const ordersData = await cloudFetch('/orders', 'GET');
-    if (ordersData && ordersData.orders) {
+    const cloud = await cloudFetch('GET');
+    if (!cloud) return false;
+    
+    // Merge orders (cloud wins for updates, local keeps new unsent orders)
+    if (cloud.orders) {
       const localOrders = JSON.parse(localStorage.getItem('speedyDeliveryOrders') || '{}');
-      const merged = { ...localOrders, ...ordersData.orders };
+      const merged = { ...localOrders, ...cloud.orders };
       localStorage.setItem('speedyDeliveryOrders', JSON.stringify(merged));
     }
     
-    // Pull drivers
-    const driversData = await cloudFetch('/drivers', 'GET');
-    if (driversData && driversData.drivers) {
+    // Merge drivers
+    if (Array.isArray(cloud.drivers)) {
       const localDrivers = JSON.parse(localStorage.getItem('speedyDrivers') || '[]');
       const driversMap = new Map();
-      
-      // Add local drivers first
       localDrivers.forEach(d => driversMap.set(d.id || d.email, d));
-      
-      // Merge cloud drivers (cloud takes priority for conflicts)
-      driversData.drivers.forEach(d => driversMap.set(d.id || d.email, d));
-      
+      cloud.drivers.forEach(d => driversMap.set(d.id || d.email, d));
       localStorage.setItem('speedyDrivers', JSON.stringify(Array.from(driversMap.values())));
+    }
+    
+    // Merge users
+    if (Array.isArray(cloud.users)) {
+      const localUsers = JSON.parse(localStorage.getItem('speedyUsers') || '[]');
+      const usersMap = new Map();
+      localUsers.forEach(u => usersMap.set(u.email, u));
+      cloud.users.forEach(u => usersMap.set(u.email, u));
+      localStorage.setItem('speedyUsers', JSON.stringify(Array.from(usersMap.values())));
     }
     
     lastSyncTime = Date.now();
@@ -80,14 +86,33 @@ async function pullFromCloud() {
 
 async function pushToCloud() {
   try {
-    const orders = JSON.parse(localStorage.getItem('speedyDeliveryOrders') || '{}');
-    const drivers = JSON.parse(localStorage.getItem('speedyDrivers') || '[]');
+    // IMPORTANT: pull first so we never overwrite other devices' data
+    const cloud = (await cloudFetch('GET')) || {};
     
-    // Push orders
-    await cloudFetch('/orders/sync', 'POST', { orders });
+    const localOrders = JSON.parse(localStorage.getItem('speedyDeliveryOrders') || '{}');
+    const localDrivers = JSON.parse(localStorage.getItem('speedyDrivers') || '[]');
+    const localUsers = JSON.parse(localStorage.getItem('speedyUsers') || '[]');
     
-    // Push drivers
-    const result = await cloudFetch('/drivers/sync', 'POST', { drivers });
+    // Merge cloud + local (local wins — we're pushing our changes)
+    const orders = { ...(cloud.orders || {}), ...localOrders };
+    
+    const driversMap = new Map();
+    (cloud.drivers || []).forEach(d => driversMap.set(d.id || d.email, d));
+    localDrivers.forEach(d => driversMap.set(d.id || d.email, d));
+    
+    const usersMap = new Map();
+    (cloud.users || []).forEach(u => usersMap.set(u.email, u));
+    localUsers.forEach(u => usersMap.set(u.email, u));
+    
+    const payload = {
+      orders,
+      drivers: Array.from(driversMap.values()),
+      users: Array.from(usersMap.values()),
+      chatMessages: cloud.chatMessages || {},
+      lastUpdated: new Date().toISOString()
+    };
+    
+    const result = await cloudFetch('PUT', payload);
     
     if (result) {
       console.log('✅ Pushed to cloud');
