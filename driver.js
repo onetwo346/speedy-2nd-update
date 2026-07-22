@@ -187,12 +187,6 @@ const buildOrderCard = (ref, order) => {
   let actions = '';
   if (idx === STATUS_FLOW.length - 1) {
     actions = `<span class="completed-tag"><i class="fas fa-circle-check"></i> Delivered</span>`;
-  } else if (order.status === 'Order Placed and Received' || order.status === 'Awaiting Payment Confirmation') {
-    actions = `
-      <button class="btn-action btn-action-outline" onclick="showOrderDetails('${ref}')">
-        <i class="fas fa-eye"></i> Details
-      </button>
-      <span class="completed-tag"><i class="fas fa-hourglass-half"></i> Awaiting Payment Confirmation</span>`;
   } else if (order.status === 'On the Way to Customer') {
     actions = `
       <button class="btn-action btn-action-outline" onclick="showOrderDetails('${ref}')">

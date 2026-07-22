@@ -61,13 +61,6 @@ a:hover { text-decoration: underline; }
 .sd-brand:hover { text-decoration: none; color: var(--text); }
 .sd-brand strong { color: var(--brand); }
 .sd-brand-icon { font-size: 1.4rem; }
-.sd-brand-logo {
-  width: 40px;
-  height: 40px;
-  object-fit: cover;
-  border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-}
 
 .sd-nav-links { display: flex; gap: 10px; align-items: center; }
 
