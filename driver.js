@@ -62,6 +62,7 @@ const saveOrders = () => {
 /* ── Status helpers ─────────────────────────────────────── */
 const STATUS_FLOW = [
   'Order Placed and Received',
+  'Awaiting Payment Confirmation',
   'Payment Confirmed - Driver Assigned',
   'Driver on the Way to Store',
   'At the Store',
@@ -72,6 +73,7 @@ const STATUS_FLOW = [
 
 const STATUS_META = {
   'Order Placed and Received':           { key:'placed',     label:'New Order',      icon:'fa-receipt',        pill:'pill-placed',     accentClass:'placed' },
+  'Awaiting Payment Confirmation':       { key:'awaiting',   label:'Awaiting Confirmation', icon:'fa-phone',   pill:'pill-placed',     accentClass:'placed' },
   'Payment Confirmed - Driver Assigned': { key:'confirmed',  label:'Confirmed',      icon:'fa-check-circle',   pill:'pill-confirmed',  accentClass:'confirmed' },
   'Driver on the Way to Store':          { key:'enroute',    label:'En Route',       icon:'fa-route',          pill:'pill-enroute',    accentClass:'enroute' },
   'At the Store':                        { key:'atstore',    label:'At Store',       icon:'fa-store',          pill:'pill-atstore',    accentClass:'atstore' },
@@ -185,6 +187,12 @@ const buildOrderCard = (ref, order) => {
   let actions = '';
   if (idx === STATUS_FLOW.length - 1) {
     actions = `<span class="completed-tag"><i class="fas fa-circle-check"></i> Delivered</span>`;
+  } else if (order.status === 'Order Placed and Received' || order.status === 'Awaiting Payment Confirmation') {
+    actions = `
+      <button class="btn-action btn-action-outline" onclick="showOrderDetails('${ref}')">
+        <i class="fas fa-eye"></i> Details
+      </button>
+      <span class="completed-tag"><i class="fas fa-hourglass-half"></i> Awaiting Payment Confirmation</span>`;
   } else if (order.status === 'On the Way to Customer') {
     actions = `
       <button class="btn-action btn-action-outline" onclick="showOrderDetails('${ref}')">

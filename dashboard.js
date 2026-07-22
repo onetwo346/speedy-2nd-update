@@ -584,6 +584,7 @@ function statusClass(status) {
   if (!status) return 'sb-default';
   const s = status.toLowerCase();
   if (s.includes('placed') || s.includes('received')) return 'sb-new';
+  if (s.includes('awaiting')) return 'sb-new';
   if (s.includes('way to store') || s.includes('assigned')) return 'sb-enroute';
   if (s.includes('at the store') || s.includes('shopping')) return 'sb-shopping';
   if (s.includes('way to customer') || s.includes('on the way')) return 'sb-otw';
@@ -596,6 +597,7 @@ function statusIcon(status) {
   if (!status) return 'fa-circle';
   const s = status.toLowerCase();
   if (s.includes('placed')) return 'fa-receipt';
+  if (s.includes('awaiting')) return 'fa-phone';
   if (s.includes('assigned')) return 'fa-user-check';
   if (s.includes('way to store')) return 'fa-route';
   if (s.includes('at the store')) return 'fa-store';
@@ -683,6 +685,7 @@ function renderTrackResult(ref) {
 
   const STATUS_STEPS = [
     { label: 'Order Placed & Received', icon: 'fa-receipt' },
+    { label: 'Awaiting Payment Confirmation', icon: 'fa-phone' },
     { label: 'Payment Confirmed – Driver Assigned', icon: 'fa-user-check' },
     { label: 'Driver on the Way to Store', icon: 'fa-route' },
     { label: 'At the Store', icon: 'fa-store' },
@@ -694,12 +697,13 @@ function renderTrackResult(ref) {
   function getStepIndex(status) {
     if (!status) return 0;
     const s = status.toLowerCase();
-    if (s.includes('delivered')) return 6;
-    if (s.includes('way to customer')) return 5;
-    if (s.includes('shopping')) return 4;
-    if (s.includes('at the store')) return 3;
-    if (s.includes('way to store')) return 2;
-    if (s.includes('assigned')) return 1;
+    if (s.includes('delivered')) return 7;
+    if (s.includes('way to customer')) return 6;
+    if (s.includes('shopping')) return 5;
+    if (s.includes('at the store')) return 4;
+    if (s.includes('way to store')) return 3;
+    if (s.includes('assigned')) return 2;
+    if (s.includes('awaiting')) return 1;
     return 0;
   }
 

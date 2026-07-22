@@ -251,6 +251,7 @@ function statusClass(status) {
   if (!status) return 'sb-default';
   const s = status.toLowerCase();
   if (s.includes('placed') || s.includes('received')) return 'sb-new';
+  if (s.includes('awaiting')) return 'sb-new';
   if (s.includes('way to store') || s.includes('assigned')) return 'sb-enroute';
   if (s.includes('at the store') || s.includes('shopping')) return 'sb-shopping';
   if (s.includes('way to customer') || s.includes('on the way')) return 'sb-otw';
@@ -262,6 +263,7 @@ function statusIcon(status) {
   if (!status) return 'fa-circle';
   const s = status.toLowerCase();
   if (s.includes('placed')) return 'fa-receipt';
+  if (s.includes('awaiting')) return 'fa-phone';
   if (s.includes('assigned')) return 'fa-user-check';
   if (s.includes('way to store')) return 'fa-route';
   if (s.includes('at the store')) return 'fa-store';
@@ -462,7 +464,7 @@ function handlePaymentConfirm() {
   btn.innerHTML = '<span class="sd-spinner" style="width:18px;height:18px;border-width:3px;"></span> Confirming…';
 
   setTimeout(() => {
-    order.status = 'Payment Confirmed - Driver Assigned';
+    order.status = 'Awaiting Payment Confirmation';
     order.paymentTime = new Date().toISOString();
     orders.set(ref, order);
     saveOrders();
@@ -471,8 +473,8 @@ function handlePaymentConfirm() {
     el('order-result').innerHTML = `
       <div class="sd-order-success mt-4">
         <div class="sd-order-success-icon"><i class="fas fa-check"></i></div>
-        <h4 class="text-center fw-bold mb-2">Order Confirmed! 🎉</h4>
-        <p class="text-center text-muted mb-4">Your payment was received and a driver is being assigned.</p>
+        <h4 class="text-center fw-bold mb-2">Order Received! 🎉</h4>
+        <p class="text-center text-muted mb-4">Thank you! We'll call you shortly on the number you provided to confirm your payment, then assign a driver to your order.</p>
         <div class="row g-3">
           <div class="col-md-6">
             <small class="text-muted d-block">Reference</small>
@@ -568,6 +570,7 @@ function handleTrackOrder() {
 
 const STATUS_STEPS = [
   { label: 'Order Placed & Received',      icon: 'fa-receipt' },
+  { label: 'Awaiting Payment Confirmation', icon: 'fa-phone' },
   { label: 'Payment Confirmed – Driver Assigned', icon: 'fa-user-check' },
   { label: 'Driver on the Way to Store',   icon: 'fa-route' },
   { label: 'At the Store',                 icon: 'fa-store' },
@@ -579,12 +582,13 @@ const STATUS_STEPS = [
 function getStepIndex(status) {
   if (!status) return 0;
   const s = status.toLowerCase();
-  if (s.includes('delivered'))             return 6;
-  if (s.includes('way to customer'))       return 5;
-  if (s.includes('shopping'))              return 4;
-  if (s.includes('at the store'))          return 3;
-  if (s.includes('way to store'))          return 2;
-  if (s.includes('assigned'))              return 1;
+  if (s.includes('delivered'))             return 7;
+  if (s.includes('way to customer'))       return 6;
+  if (s.includes('shopping'))              return 5;
+  if (s.includes('at the store'))          return 4;
+  if (s.includes('way to store'))          return 3;
+  if (s.includes('assigned'))              return 2;
+  if (s.includes('awaiting'))              return 1;
   return 0;
 }
 

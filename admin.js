@@ -35,6 +35,7 @@ let refreshInterval     = null;
 /* ── Status meta ─────────────────────────────────── */
 const STATUS_META = {
   'Order Placed and Received':           { pill:'placed',     icon:'fa-receipt',       label:'New Order'  },
+  'Awaiting Payment Confirmation':       { pill:'awaiting',   icon:'fa-phone',         label:'Awaiting Confirmation' },
   'Payment Confirmed - Driver Assigned': { pill:'confirmed',  icon:'fa-check-circle',  label:'Confirmed'  },
   'Driver on the Way to Store':          { pill:'enroute',    icon:'fa-route',          label:'En Route'   },
   'At the Store':                        { pill:'atstore',    icon:'fa-store',          label:'At Store'   },
@@ -46,6 +47,7 @@ const STATUS_META = {
 
 const STATUS_FLOW = [
   'Order Placed and Received',
+  'Awaiting Payment Confirmation',
   'Payment Confirmed - Driver Assigned',
   'Driver on the Way to Store',
   'At the Store',

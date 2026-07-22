@@ -83,6 +83,13 @@ img { max-width: 100%; height: auto; }
 .sd-brand:hover { color: var(--white); }
 .sd-brand strong { color: var(--brand); font-weight: 800; }
 .sd-brand-icon { font-size: 1.5rem; }
+.sd-brand-logo {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
 
 .sd-nav-links { display: flex; gap: 4px; align-items: center; }
 .sd-nav-link {

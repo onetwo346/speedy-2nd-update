@@ -606,6 +606,7 @@ body {
 .spill i { font-size: 10px; }
 
 .spill--placed     { background: var(--blue-lt);              color: var(--blue);   }
+.spill--awaiting   { background: var(--amber-lt);             color: var(--amber);  }
 .spill--confirmed  { background: var(--green-lt);             color: var(--green);  }
 .spill--enroute    { background: rgba(99,102,241,0.15);       color: #818cf8;       }
 .spill--atstore    { background: var(--teal-lt);              color: var(--teal);   }
