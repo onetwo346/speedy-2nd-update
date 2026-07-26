@@ -61,6 +61,12 @@ a:hover { text-decoration: underline; }
 .sd-brand:hover { text-decoration: none; color: var(--text); }
 .sd-brand strong { color: var(--brand); }
 .sd-brand-icon { font-size: 1.4rem; }
+.sd-brand-logo {
+  height: 44px;
+  width: auto;
+  object-fit: contain;
+  border-radius: 8px;
+}
 
 .sd-nav-links { display: flex; gap: 10px; align-items: center; }
 
@@ -221,6 +227,7 @@ a:hover { text-decoration: underline; }
   }
   .sd-nav-links.open { display: flex; }
   .sd-nav-links .sd-btn { width: 100%; margin-top: 3px; }
+  .sd-brand-logo { height: 36px; }
 }
 
 /* ===== STORE CARDS ===== */

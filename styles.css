@@ -83,6 +83,12 @@ img { max-width: 100%; height: auto; }
 .sd-brand:hover { color: var(--white); }
 .sd-brand strong { color: var(--brand); font-weight: 800; }
 .sd-brand-icon { font-size: 1.5rem; }
+.sd-brand-logo {
+  height: 44px;
+  width: auto;
+  object-fit: contain;
+  border-radius: 8px;
+}
 
 .sd-nav-links { display: flex; gap: 4px; align-items: center; }
 .sd-nav-link {
@@ -995,6 +1001,7 @@ img { max-width: 100%; height: auto; }
   .sd-nav-links.open { display: flex; }
   .sd-nav-link { padding: 6px 8px; width: 100%; text-align: center; }
   .sd-nav-links .sd-btn { width: 100%; margin-top: 3px; }
+  .sd-brand-logo { height: 36px; }
 }
 
 /* ---- UTILITIES ---- */
