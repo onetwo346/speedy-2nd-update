@@ -199,11 +199,10 @@ window.addSelectedToOrder = function() {
     return;
   }
 
-  const itemsText = selectedItems.map(i => i.name).join(', ');
-  const itemsField = el('items');
-  
-  if (itemsField) {
-    itemsField.value = itemsText;
+  const list = el('items-list');
+  if (list) {
+    list.innerHTML = '';
+    selectedItems.forEach(i => addItemRow(i.name, 1, i.price));
   }
 
   closeInventoryModal();
@@ -339,6 +338,72 @@ function populateStoreDropdown() {
     opt.textContent = `${s.icon} ${s.name} — ${s.type}`;
     sel.appendChild(opt);
   });
+  const otherOpt = document.createElement('option');
+  otherOpt.value = 'other';
+  otherOpt.textContent = '✏️ Other — type any store you want';
+  sel.appendChild(otherOpt);
+
+  sel.addEventListener('change', () => {
+    const customInput = el('custom-store');
+    if (!customInput) return;
+    if (sel.value === 'other') {
+      customInput.style.display = 'block';
+      customInput.focus();
+    } else {
+      customInput.style.display = 'none';
+      customInput.value = '';
+    }
+  });
+}
+
+// ---- SHOPPING LIST ROWS ----
+function addItemRow(name = '', qty = 1, price = '') {
+  const list = el('items-list');
+  if (!list) return null;
+  const row = document.createElement('div');
+  row.className = 'sd-item-row d-flex gap-2 mb-2 align-items-center';
+  row.innerHTML = `
+    <input type="text" class="sd-input sd-item-name" placeholder="e.g. 2L Cowbell Milk" style="flex:3;">
+    <input type="number" class="sd-input sd-item-qty" min="1" step="1" style="flex:1;min-width:70px;">
+    <input type="number" class="sd-input sd-item-price" min="0" step="0.01" placeholder="0.00" style="flex:1.4;min-width:110px;">
+    <button type="button" class="sd-btn sd-btn-sm sd-item-remove" title="Remove item" style="width:38px;flex-shrink:0;color:#dc3545;"><i class="fas fa-times"></i></button>
+  `;
+  row.querySelector('.sd-item-name').value = name;
+  row.querySelector('.sd-item-qty').value = qty;
+  row.querySelector('.sd-item-price').value = price;
+  row.querySelector('.sd-item-remove').addEventListener('click', () => {
+    row.remove();
+    if (!list.children.length) addItemRow();
+    updateItemsSubtotal();
+  });
+  row.querySelectorAll('input').forEach(inp => inp.addEventListener('input', updateItemsSubtotal));
+  list.appendChild(row);
+  updateItemsSubtotal();
+  return row;
+}
+
+function getItemRows() {
+  return Array.from(document.querySelectorAll('#items-list .sd-item-row')).map(row => {
+    const name = row.querySelector('.sd-item-name').value.trim();
+    const qty = Math.max(1, parseInt(row.querySelector('.sd-item-qty').value, 10) || 1);
+    const priceRaw = row.querySelector('.sd-item-price').value;
+    const price = priceRaw === '' ? null : Math.max(0, Number(priceRaw) || 0);
+    return { name, qty, price };
+  }).filter(i => i.name);
+}
+
+function updateItemsSubtotal() {
+  const subtotal = getItemRows().reduce((sum, i) => sum + (i.price != null ? i.price * i.qty : 0), 0);
+  const subEl = el('items-subtotal');
+  if (subEl) subEl.textContent = `GH₵${subtotal.toFixed(2)}`;
+  return subtotal;
+}
+
+function resetItemRows() {
+  const list = el('items-list');
+  if (!list) return;
+  list.innerHTML = '';
+  addItemRow();
 }
 
 // ---- Holds the validated order form data while the refund policy modal is open ----
@@ -352,7 +417,8 @@ function handleOrderSubmit(e) {
   const phone   = el('customer-phone')?.value.trim();
   const address = el('customer-address')?.value.trim();
   const storeId = el('store-select')?.value;
-  const itemsRaw= el('items')?.value;
+  const customStore = el('custom-store')?.value.trim();
+  const itemRows = getItemRows();
   const note    = el('custom-request')?.value.trim();
   const eco     = el('eco-friendly')?.checked;
 
@@ -363,21 +429,23 @@ function handleOrderSubmit(e) {
   if (!phone || phone.replace(/\D/g,'').length < 9) errs.push('Please enter a valid phone number.');
   if (!address || address.length < 8)     errs.push('Please enter a delivery address.');
   if (!storeId)                           errs.push('Please select a store.');
-  const items = (itemsRaw || '').split('\n').map(i => i.trim()).filter(Boolean);
-  if (items.length === 0)                 errs.push('Please list at least one item.');
+  if (storeId === 'other' && (!customStore || customStore.length < 2)) errs.push('Please type the name of the store you want.');
+  const items = itemRows.map(i =>
+    `${i.qty} x ${i.name}${i.price != null ? ` @ GH₵${i.price.toFixed(2)} each` : ''}`
+  );
+  if (items.length === 0)                 errs.push('Please add at least one item to your shopping list.');
 
   if (errs.length) {
     showAlert(errs.join('<br>'), 'danger', 'order-form-alert');
     return;
   }
 
-  // Items subtotal comes from whatever was picked in the store inventory modal.
-  // If the shopper typed items manually instead of picking from inventory, we
-  // simply have no price for those lines, so the subtotal is 0 and only the
-  // flat delivery fee is charged at this step.
-  const itemsSubtotal = selectedItems.reduce((sum, i) => sum + (Number(i.price) || 0), 0);
+  // Items subtotal is calculated from the prices the customer typed in the
+  // shopping list rows (qty × price). Rows without a price contribute 0, so
+  // in that case only the flat delivery fee is charged at this step.
+  const itemsSubtotal = itemRows.reduce((sum, i) => sum + (i.price != null ? i.price * i.qty : 0), 0);
 
-  pendingOrderData = { name, phone, address, storeId, items, note, eco, itemsSubtotal };
+  pendingOrderData = { name, phone, address, storeId, customStore, items, note, eco, itemsSubtotal };
 
   openRefundPolicyModal();
 }
@@ -400,7 +468,7 @@ function closeRefundPolicyModal() {
 
 function finalizeOrderAndShowPayment() {
   if (!pendingOrderData) return;
-  const { name, phone, address, storeId, items, note, eco, itemsSubtotal } = pendingOrderData;
+  const { name, phone, address, storeId, customStore, items, note, eco, itemsSubtotal } = pendingOrderData;
 
   const btn = el('submit-order-btn');
   if (btn) {
@@ -417,7 +485,7 @@ function finalizeOrderAndShowPayment() {
     customerPhone:   phone,
     customerAddress: address,
     storeId,
-    storeName:       store?.name || '',
+    storeName:       storeId === 'other' ? customStore : (store?.name || ''),
     items,
     customRequest:   note,
     ecoFriendly:     eco,
@@ -433,7 +501,7 @@ function finalizeOrderAndShowPayment() {
   saveOrders();
 
   // Show payment step with the breakdown
-  el('payment-items-subtotal').textContent = `GH₵${itemsSubtotal}`;
+  el('payment-items-subtotal').textContent = `GH₵${itemsSubtotal.toFixed(2)}`;
   el('payment-delivery-fee').textContent = `GH₵${DELIVERY_FEE}`;
   el('payment-reference').textContent = ref;
   el('payment-step').style.display = 'block';
@@ -441,6 +509,7 @@ function finalizeOrderAndShowPayment() {
   el('payment-step').scrollIntoView({ behavior: 'smooth', block: 'start' });
 
   el('order-form')?.reset();
+  resetItemRows();
   selectedItems = [];
   if (btn) {
     btn.disabled = false;
@@ -759,6 +828,12 @@ document.addEventListener('DOMContentLoaded', () => {
   if (typeof BroadcastChannel !== 'undefined') {
     broadcastChannel = new BroadcastChannel(CHANNEL_NAME);
   }
+
+  resetItemRows();
+  el('add-item-btn')?.addEventListener('click', () => {
+    const row = addItemRow();
+    row?.querySelector('.sd-item-name')?.focus();
+  });
 
   el('order-form')?.addEventListener('submit', handleOrderSubmit);
   el('confirm-payment')?.addEventListener('click', handlePaymentConfirm);

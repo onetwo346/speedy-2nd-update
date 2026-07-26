@@ -337,13 +337,27 @@
               <select id="store-select" class="sd-input" required>
                 <option value="" disabled selected>Select a store…</option>
               </select>
+              <input type="text" id="custom-store" class="sd-input mt-2" placeholder="Type the store name, e.g. Auntie Ama's Provisions Shop" style="display:none;">
+              <p class="sd-form-hint"><i class="fas fa-lightbulb me-1"></i>Don't see your store? Choose "Other" and type any store you want.</p>
             </div>
 
             <!-- Items -->
             <div class="sd-form-section">
               <div class="sd-form-section-label"><i class="fas fa-shopping-cart me-2"></i>Shopping List</div>
-              <textarea id="items" class="sd-input" rows="5" placeholder="List items one per line:&#10;2L Cowbell Milk&#10;1 loaf bread&#10;5kg rice bag" required></textarea>
-              <p class="sd-form-hint"><i class="fas fa-lightbulb me-1"></i>Be specific — include quantities, brands, and sizes.</p>
+              <div class="d-none d-sm-flex gap-2 mb-1">
+                <div style="flex:3;" class="sd-form-hint mb-0">Item</div>
+                <div style="flex:1;min-width:70px;" class="sd-form-hint mb-0">Qty</div>
+                <div style="flex:1.4;min-width:110px;" class="sd-form-hint mb-0">Price (GH₵) <span class="text-muted">optional</span></div>
+                <div style="width:38px;"></div>
+              </div>
+              <div id="items-list"></div>
+              <div class="d-flex justify-content-between align-items-center mt-2 flex-wrap gap-2">
+                <button type="button" id="add-item-btn" class="sd-btn sd-btn-outline sd-btn-sm">
+                  <i class="fas fa-plus me-1"></i>Add Another Item
+                </button>
+                <div class="fw-bold">Items subtotal: <span id="items-subtotal" class="text-brand">GH₵0.00</span></div>
+              </div>
+              <p class="sd-form-hint mt-2"><i class="fas fa-lightbulb me-1"></i>Be specific — include brands and sizes. Price is optional; if you know it, add it so we can estimate your total.</p>
             </div>
 
             <!-- Special Instructions -->

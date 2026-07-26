@@ -246,6 +246,22 @@ function loadStores() {
         opt.textContent = `${s.icon} ${s.name}`;
         quickSelect.appendChild(opt);
       });
+      const otherOpt = document.createElement('option');
+      otherOpt.value = 'other';
+      otherOpt.textContent = '✏️ Other — type any store you want';
+      quickSelect.appendChild(otherOpt);
+
+      quickSelect.addEventListener('change', () => {
+        const customInput = document.getElementById('quick-custom-store');
+        if (!customInput) return;
+        if (quickSelect.value === 'other') {
+          customInput.style.display = 'block';
+          customInput.focus();
+        } else {
+          customInput.style.display = 'none';
+          customInput.value = '';
+        }
+      });
     }
 
     loading.style.display = 'none';
@@ -270,11 +286,17 @@ function handleQuickOrder(e) {
   e.preventDefault();
 
   const storeId = document.getElementById('quick-store-select').value;
+  const customStore = document.getElementById('quick-custom-store')?.value.trim();
   const itemsRaw = document.getElementById('quick-items').value;
   const address = document.getElementById('quick-address').value;
 
   if (!storeId || !itemsRaw || !address) {
     showAlert('Please fill in all fields.', 'warning');
+    return;
+  }
+
+  if (storeId === 'other' && (!customStore || customStore.length < 2)) {
+    showAlert('Please type the name of the store you want.', 'warning');
     return;
   }
 
@@ -289,7 +311,7 @@ function handleQuickOrder(e) {
     customerEmail: currentUser.email,
     customerAddress: address,
     storeId,
-    storeName: store?.name || '',
+    storeName: storeId === 'other' ? customStore : (store?.name || ''),
     items,
     status: 'Order Placed and Received',
     timestamp: new Date().toISOString(),
