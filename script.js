@@ -311,12 +311,41 @@ function renderStores() {
           </div>
         </div>
       </div>
-    `).join('');
+    `).join('') + `
+      <div class="col-lg-6 col-md-6">
+        <div class="sd-store-card h-100" onclick="selectOtherStore()" style="--store-color:#FF7A45;border-style:dashed;">
+          <span class="sd-store-icon">✏️</span>
+          <div class="sd-store-name">Others</div>
+          <div class="sd-store-type">Any Store — Custom Order</div>
+          <div class="sd-store-desc">Don't see your store? Order from any shop in Agona Swedru — just tell us the store and what you need.</div>
+          <div class="d-flex justify-content-between align-items-center mt-3">
+            <div class="sd-store-rating">
+              <i class="fas fa-star"></i> Custom
+            </div>
+            <button class="sd-btn sd-btn-primary sd-btn-sm" onclick="event.stopPropagation();selectOtherStore()">
+              Customize Order
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
 
     loading.style.display = 'none';
     list.style.display = 'flex';
     list.style.flexWrap = 'wrap';
   }, 600);
+}
+
+window.selectOtherStore = function() {
+  const sel = el('store-select');
+  const customInput = el('custom-store');
+  if (sel) {
+    sel.value = 'other';
+    sel.dispatchEvent(new Event('change'));
+  }
+  const orderSection = el('order');
+  if (orderSection) orderSection.scrollIntoView({ behavior: 'smooth' });
+  if (customInput) setTimeout(() => customInput.focus(), 600);
 }
 
 window.selectStore = function(id) {
@@ -396,6 +425,10 @@ function updateItemsSubtotal() {
   const subtotal = getItemRows().reduce((sum, i) => sum + (i.price != null ? i.price * i.qty : 0), 0);
   const subEl = el('items-subtotal');
   if (subEl) subEl.textContent = `GH₵${subtotal.toFixed(2)}`;
+  const feeEl = el('order-delivery-fee');
+  if (feeEl) feeEl.textContent = `GH₵${DELIVERY_FEE.toFixed(2)}`;
+  const totalEl = el('order-total');
+  if (totalEl) totalEl.textContent = `GH₵${(subtotal + DELIVERY_FEE).toFixed(2)}`;
   return subtotal;
 }
 
@@ -502,7 +535,9 @@ function finalizeOrderAndShowPayment() {
 
   // Show payment step with the breakdown
   el('payment-items-subtotal').textContent = `GH₵${itemsSubtotal.toFixed(2)}`;
-  el('payment-delivery-fee').textContent = `GH₵${DELIVERY_FEE}`;
+  el('payment-delivery-fee').textContent = `GH₵${DELIVERY_FEE.toFixed(2)}`;
+  const payTotalEl = el('payment-total');
+  if (payTotalEl) payTotalEl.textContent = `GH₵${totalAmount.toFixed(2)}`;
   el('payment-reference').textContent = ref;
   el('payment-step').style.display = 'block';
   el('payment-step').dataset.ref = ref;
@@ -571,15 +606,15 @@ function handlePaymentConfirm() {
           </div>
           <div class="col-md-4">
             <small class="text-muted d-block">Items Subtotal</small>
-            <strong>GH₵${order.itemsSubtotal ?? 0}</strong>
+            <strong>GH₵${(order.itemsSubtotal ?? 0).toFixed(2)}</strong>
           </div>
           <div class="col-md-4">
             <small class="text-muted d-block">Delivery Fee</small>
-            <strong>GH₵${order.deliveryFee ?? DELIVERY_FEE}</strong>
+            <strong>GH₵${(order.deliveryFee ?? DELIVERY_FEE).toFixed(2)}</strong>
           </div>
           <div class="col-md-4">
             <small class="text-muted d-block">Total Paid</small>
-            <strong>GH₵${order.totalAmount ?? DELIVERY_FEE}</strong>
+            <strong>GH₵${(order.totalAmount ?? DELIVERY_FEE).toFixed(2)}</strong>
           </div>
         </div>
         <div class="d-flex gap-3 mt-4 flex-wrap">
