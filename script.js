@@ -928,33 +928,6 @@ function initMobileMenu() {
   }
 }
 
-// ---- VIDEO CONTROLS ----
-function initVideoControls() {
-  const video = el('speedyPromoVideo');
-  const playBtn = el('videoPlayBtn');
-  const pauseBtn = el('videoPauseBtn');
-  const stopBtn = el('videoStopBtn');
-  const muteBtn = el('videoMuteBtn');
-  if (!video || !playBtn || !pauseBtn || !stopBtn || !muteBtn) return;
-
-  const updateMuteIcon = () => {
-    muteBtn.innerHTML = video.muted ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>';
-  };
-
-  playBtn.addEventListener('click', () => { video.play(); });
-  pauseBtn.addEventListener('click', () => { video.pause(); });
-  stopBtn.addEventListener('click', () => {
-    video.pause();
-    video.currentTime = 0;
-  });
-  muteBtn.addEventListener('click', () => {
-    video.muted = !video.muted;
-    updateMuteIcon();
-  });
-
-  video.addEventListener('volumechange', updateMuteIcon);
-}
-
 // ---- INIT ----
 document.addEventListener('DOMContentLoaded', () => {
   if (!el('order-form')) return; // only run on customer page
@@ -965,7 +938,6 @@ document.addEventListener('DOMContentLoaded', () => {
   initSmoothScroll();
   initNavScroll();
   initMobileMenu();
-  initVideoControls();
 
   if (typeof BroadcastChannel !== 'undefined') {
     broadcastChannel = new BroadcastChannel(CHANNEL_NAME);
