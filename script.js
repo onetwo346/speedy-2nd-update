@@ -937,35 +937,9 @@ function initVideoControls() {
   const muteBtn = el('videoMuteBtn');
   if (!video || !playBtn || !pauseBtn || !stopBtn || !muteBtn) return;
 
-  const FIRST_VISIT_KEY = 'speedyVideoFirstVisit';
-  const isFirstVisit = !localStorage.getItem(FIRST_VISIT_KEY);
-
   const updateMuteIcon = () => {
     muteBtn.innerHTML = video.muted ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>';
   };
-
-  if (isFirstVisit) {
-    // First visit: try to autoplay with sound
-    video.muted = false;
-    video.play().catch(() => {
-      // Browser blocked sound autoplay — fall back to muted so video still plays
-      video.muted = true;
-      video.play().catch(() => {});
-    });
-    // After first full loop ends, go mute for all subsequent loops
-    video.addEventListener('ended', function onFirstEnd() {
-      video.muted = true;
-      updateMuteIcon();
-      video.removeEventListener('ended', onFirstEnd);
-    });
-    localStorage.setItem(FIRST_VISIT_KEY, '1');
-  } else {
-    // Returning visit: autoplay muted (browsers always allow this)
-    video.muted = true;
-    video.play().catch(() => {});
-  }
-
-  updateMuteIcon();
 
   playBtn.addEventListener('click', () => { video.play(); });
   pauseBtn.addEventListener('click', () => { video.pause(); });
