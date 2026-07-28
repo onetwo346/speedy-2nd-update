@@ -219,9 +219,12 @@ function loadStores() {
 
   setTimeout(() => {
     list.innerHTML = STORES.map(s => `
-      <div class="col-lg-6 col-md-6">
-        <div class="sd-store-card h-100" onclick="selectStore('${s.id}')" style="--store-color:${s.color};">
-          <span class="sd-store-icon">${s.icon}</span>
+      <div class="col-lg-3 col-md-4 col-6">
+        <div class="sd-store-card sd-store-card-square" onclick="selectStore('${s.id}')" style="--store-color:${s.color};">
+          <div class="sd-store-img-wrap">
+            <img src="${s.image}" alt="${s.name}" class="sd-store-img" loading="lazy">
+            <span class="sd-store-img-badge">${s.icon}</span>
+          </div>
           <div class="sd-store-name">${s.name}</div>
           <div class="sd-store-type">${s.type}</div>
           <div class="sd-store-desc">${s.desc}</div>

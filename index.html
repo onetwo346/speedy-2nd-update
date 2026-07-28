@@ -331,7 +331,14 @@
             <!-- Store -->
             <div class="sd-form-section">
               <div class="sd-form-section-label"><i class="fas fa-store me-2"></i>Choose a Store</div>
-              <select id="store-select" class="sd-input" required>
+              <div class="sd-store-picker" id="storePicker">
+                <div class="sd-store-picker-trigger" id="storePickerTrigger" tabindex="0">
+                  <span class="sd-store-picker-placeholder">Select a store…</span>
+                  <i class="fas fa-chevron-down sd-store-picker-arrow"></i>
+                </div>
+                <div class="sd-store-picker-menu" id="storePickerMenu"></div>
+              </div>
+              <select id="store-select" class="sd-input" required style="display:none;">
                 <option value="" disabled selected>Select a store…</option>
               </select>
               <input type="text" id="custom-store" class="sd-input mt-2" placeholder="Type the store name, e.g. Auntie Ama's Provisions Shop" style="display:none;">

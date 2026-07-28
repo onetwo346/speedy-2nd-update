@@ -18,6 +18,7 @@ const STORES = [
     name:'Wiafesco',            
     type:'Cosmetics & Beauty',   
     icon:'💄', 
+    image:'IMG_7186.webp',
     color:'#FF6B9D', 
     rating:4.8, 
     desc:'Premium cosmetics, skincare, soaps and perfumes for all your beauty needs.',
@@ -37,6 +38,7 @@ const STORES = [
     name:'Geneviva Lodge',       
     type:'Hotel & Restaurant',   
     icon:'🏨', 
+    image:'IMG_7184.jpeg',
     color:'#4ECDC4', 
     rating:4.6, 
     desc:'Comfortable rooms, delicious local cuisine, drinks and catering services.',
@@ -56,6 +58,7 @@ const STORES = [
     name:'Maryking Super Market',
     type:'Grocery & Household',  
     icon:'🛒', 
+    image:'IMG_7185.jpeg',
     color:'#45B7D1', 
     rating:4.7, 
     desc:'Fresh groceries, household essentials and daily necessities for your home.',
@@ -75,6 +78,7 @@ const STORES = [
     name:'Chekin Pizza',         
     type:'Fast Food & Drinks',   
     icon:'🍕', 
+    image:'IMG_7183.jpeg',
     color:'#96CEB4', 
     rating:4.5, 
     desc:'Delicious fresh pizzas, burgers, pasta and cold drinks delivered to you.',
@@ -291,13 +295,16 @@ function renderStores() {
 
   setTimeout(() => {
     list.innerHTML = STORES.map(s => `
-      <div class="col-lg-6 col-md-6">
-        <div class="sd-store-card h-100" onclick="openStoreInventory('${s.id}')" style="--store-color:${s.color};">
+      <div class="col-lg-3 col-md-4 col-6">
+        <div class="sd-store-card sd-store-card-square" onclick="openStoreInventory('${s.id}')" style="--store-color:${s.color};">
           <div class="sd-store-card::before" style="background:${s.color};"></div>
           <style>
             .sd-store-card:hover::before { background: ${s.color}; }
           </style>
-          <span class="sd-store-icon">${s.icon}</span>
+          <div class="sd-store-img-wrap">
+            <img src="${s.image}" alt="${s.name}" class="sd-store-img" loading="lazy">
+            <span class="sd-store-img-badge">${s.icon}</span>
+          </div>
           <div class="sd-store-name">${s.name}</div>
           <div class="sd-store-type">${s.type}</div>
           <div class="sd-store-desc">${s.desc}</div>
@@ -312,9 +319,12 @@ function renderStores() {
         </div>
       </div>
     `).join('') + `
-      <div class="col-lg-6 col-md-6">
-        <div class="sd-store-card h-100" onclick="selectOtherStore()" style="--store-color:#FF7A45;border-style:dashed;">
-          <span class="sd-store-icon">✏️</span>
+      <div class="col-lg-3 col-md-4 col-6">
+        <div class="sd-store-card sd-store-card-square" onclick="selectOtherStore()" style="--store-color:#FF7A45;border-style:dashed;">
+          <div class="sd-store-img-wrap">
+            <img src="IMG_7187.jpeg" alt="Any store — custom order" class="sd-store-img" loading="lazy">
+            <span class="sd-store-img-badge">✏️</span>
+          </div>
           <div class="sd-store-name">Others</div>
           <div class="sd-store-type">Any Store — Custom Order</div>
           <div class="sd-store-desc">Don't see your store? Order from any shop in Agona Swedru — just tell us the store and what you need.</div>
@@ -346,12 +356,16 @@ window.selectOtherStore = function() {
   const orderSection = el('order');
   if (orderSection) orderSection.scrollIntoView({ behavior: 'smooth' });
   if (customInput) setTimeout(() => customInput.focus(), 600);
+  updatePickerTrigger(null, '✏️ Other', 'Custom order');
 }
 
 window.selectStore = function(id) {
   const sel = el('store-select');
   if (sel) {
     sel.value = id;
+    sel.dispatchEvent(new Event('change'));
+    const store = STORES.find(s => s.id === id);
+    if (store) updatePickerTrigger(store.image, `${store.icon} ${store.name}`, store.type);
     document.getElementById('order')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 };
@@ -383,6 +397,71 @@ function populateStoreDropdown() {
       customInput.value = '';
     }
   });
+
+  // Build custom picker with images
+  const menu = el('storePickerMenu');
+  const trigger = el('storePickerTrigger');
+  const picker = el('storePicker');
+  if (!menu || !trigger || !picker) return;
+
+  menu.innerHTML = '';
+  STORES.forEach(s => {
+    const item = document.createElement('div');
+    item.className = 'sd-store-picker-item';
+    item.innerHTML = `
+      <img src="${s.image}" alt="${s.name}">
+      <div class="sd-store-picker-item-info">
+        <div class="sd-store-picker-item-name">${s.icon} ${s.name}</div>
+        <div class="sd-store-picker-item-type">${s.type}</div>
+      </div>
+    `;
+    item.addEventListener('click', () => {
+      sel.value = s.id;
+      sel.dispatchEvent(new Event('change'));
+      updatePickerTrigger(s.image, `${s.icon} ${s.name}`, s.type);
+      picker.classList.remove('open');
+    });
+    menu.appendChild(item);
+  });
+
+  // Others option
+  const otherItem = document.createElement('div');
+  otherItem.className = 'sd-store-picker-item';
+  otherItem.innerHTML = `
+    <img src="IMG_7187.jpeg" alt="Other">
+    <div class="sd-store-picker-item-info">
+      <div class="sd-store-picker-item-name">✏️ Other</div>
+      <div class="sd-store-picker-item-type">Type any store you want</div>
+    </div>
+  `;
+  otherItem.addEventListener('click', () => {
+    sel.value = 'other';
+    sel.dispatchEvent(new Event('change'));
+    updatePickerTrigger(null, '✏️ Other', 'Custom order');
+    picker.classList.remove('open');
+  });
+  menu.appendChild(otherItem);
+
+  // Toggle open/close
+  trigger.addEventListener('click', (e) => {
+    e.stopPropagation();
+    picker.classList.toggle('open');
+  });
+
+  // Close on outside click
+  document.addEventListener('click', (e) => {
+    if (!picker.contains(e.target)) picker.classList.remove('open');
+  });
+}
+
+function updatePickerTrigger(imgSrc, name, type) {
+  const trigger = el('storePickerTrigger');
+  if (!trigger) return;
+  const imgHtml = imgSrc ? `<img src="${imgSrc}" alt="${name}">` : '';
+  trigger.innerHTML = `
+    <span class="sd-store-picker-selected">${imgHtml}${name}</span>
+    <i class="fas fa-chevron-down sd-store-picker-arrow"></i>
+  `;
 }
 
 // ---- SHOPPING LIST ROWS ----
