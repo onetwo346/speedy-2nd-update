@@ -21,17 +21,7 @@ const STORES = [
     image:'IMG_7186.webp',
     color:'#FF6B9D', 
     rating:4.8, 
-    desc:'Premium cosmetics, skincare, soaps and perfumes for all your beauty needs.',
-    inventory: [
-      { name: 'Face Cream', price: 45, category: 'Skincare' },
-      { name: 'Body Lotion', price: 35, category: 'Skincare' },
-      { name: 'Lipstick Set', price: 25, category: 'Makeup' },
-      { name: 'Perfume 50ml', price: 80, category: 'Fragrance' },
-      { name: 'Face Wash', price: 20, category: 'Skincare' },
-      { name: 'Hair Oil', price: 30, category: 'Hair Care' },
-      { name: 'Makeup Kit', price: 120, category: 'Makeup' },
-      { name: 'Body Soap Pack', price: 15, category: 'Body Care' }
-    ]
+    desc:'Premium cosmetics, skincare, soaps and perfumes for all your beauty needs.'
   },
   { 
     id:'2', 
@@ -41,17 +31,7 @@ const STORES = [
     image:'IMG_7184.jpeg',
     color:'#4ECDC4', 
     rating:4.6, 
-    desc:'Comfortable rooms, delicious local cuisine, drinks and catering services.',
-    inventory: [
-      { name: 'Jollof Rice Plate', price: 25, category: 'Main Course' },
-      { name: 'Fried Rice', price: 25, category: 'Main Course' },
-      { name: 'Banku & Tilapia', price: 35, category: 'Main Course' },
-      { name: 'Chicken Wings (6pcs)', price: 30, category: 'Appetizer' },
-      { name: 'Fresh Juice', price: 15, category: 'Drinks' },
-      { name: 'Soft Drink', price: 8, category: 'Drinks' },
-      { name: 'Bottle Water', price: 5, category: 'Drinks' },
-      { name: 'Salad Bowl', price: 20, category: 'Sides' }
-    ]
+    desc:'Comfortable rooms, delicious local cuisine, drinks and catering services.'
   },
   { 
     id:'3', 
@@ -61,17 +41,7 @@ const STORES = [
     image:'IMG_7185.jpeg',
     color:'#45B7D1', 
     rating:4.7, 
-    desc:'Fresh groceries, household essentials and daily necessities for your home.',
-    inventory: [
-      { name: 'Rice (5kg)', price: 50, category: 'Grains' },
-      { name: 'Cooking Oil (1L)', price: 25, category: 'Cooking' },
-      { name: 'Tomatoes (1kg)', price: 15, category: 'Vegetables' },
-      { name: 'Onions (1kg)', price: 12, category: 'Vegetables' },
-      { name: 'Detergent', price: 18, category: 'Household' },
-      { name: 'Toilet Paper (12 rolls)', price: 20, category: 'Household' },
-      { name: 'Bread Loaf', price: 10, category: 'Bakery' },
-      { name: 'Eggs (12pcs)', price: 22, category: 'Dairy' }
-    ]
+    desc:'Fresh groceries, household essentials and daily necessities for your home.'
   },
   { 
     id:'4', 
@@ -81,17 +51,7 @@ const STORES = [
     image:'IMG_7183.jpeg',
     color:'#96CEB4', 
     rating:4.5, 
-    desc:'Delicious fresh pizzas, burgers, pasta and cold drinks delivered to you.',
-    inventory: [
-      { name: 'Margherita Pizza (Medium)', price: 45, category: 'Pizza' },
-      { name: 'Pepperoni Pizza (Medium)', price: 55, category: 'Pizza' },
-      { name: 'Cheese Burger', price: 25, category: 'Burgers' },
-      { name: 'Chicken Burger', price: 28, category: 'Burgers' },
-      { name: 'Spaghetti Bolognese', price: 30, category: 'Pasta' },
-      { name: 'Carbonara', price: 32, category: 'Pasta' },
-      { name: 'French Fries', price: 15, category: 'Sides' },
-      { name: 'Coca Cola', price: 8, category: 'Drinks' }
-    ]
+    desc:'Delicious fresh pizzas, burgers, pasta and cold drinks delivered to you.'
   },
 ];
 
@@ -125,109 +85,6 @@ function broadcast(payload) {
     if (broadcastChannel) broadcastChannel.postMessage(payload);
   } catch(e) {}
 }
-
-// ---- STORE INVENTORY MODAL ----
-let selectedStore = null;
-let selectedItems = [];
-
-window.openStoreInventory = function(storeId) {
-  selectedStore = STORES.find(s => s.id === storeId);
-  if (!selectedStore) return;
-
-  const modal = el('storeInventoryModal');
-  const storeIcon = el('inventoryStoreIcon');
-  const storeName = el('inventoryStoreName');
-  const storeType = el('inventoryStoreType');
-  const loading = el('inventory-loading');
-  const list = el('inventory-list');
-
-  if (storeIcon) storeIcon.textContent = selectedStore.icon;
-  if (storeName) storeName.textContent = selectedStore.name;
-  if (storeType) storeType.textContent = selectedStore.type;
-
-  selectedItems = [];
-  modal.style.display = 'flex';
-  document.body.style.overflow = 'hidden';
-
-  loading.style.display = 'block';
-  list.style.display = 'none';
-
-  setTimeout(() => {
-    renderInventory();
-    loading.style.display = 'none';
-    list.style.display = 'block';
-  }, 500);
-}
-
-window.renderInventory = function() {
-  const list = el('inventory-list');
-  if (!list || !selectedStore) return;
-
-  list.innerHTML = selectedStore.inventory.map((item, index) => `
-    <div class="sd-inventory-item" data-index="${index}" onclick="toggleItemSelection(${index})">
-      <div>
-        <div class="sd-inventory-item-name">${item.name}</div>
-        <div class="sd-inventory-item-category">${item.category}</div>
-      </div>
-      <div class="sd-inventory-item-price">GH₵${item.price}</div>
-    </div>
-  `).join('');
-}
-
-window.toggleItemSelection = function(index) {
-  const item = selectedStore.inventory[index];
-  const itemEl = document.querySelector(`.sd-inventory-item[data-index="${index}"]`);
-  
-  const existingIndex = selectedItems.findIndex(i => i.name === item.name);
-  
-  if (existingIndex > -1) {
-    selectedItems.splice(existingIndex, 1);
-    itemEl.classList.remove('selected');
-  } else {
-    selectedItems.push(item);
-    itemEl.classList.add('selected');
-  }
-}
-
-window.closeInventoryModal = function() {
-  const modal = el('storeInventoryModal');
-  if (modal) {
-    modal.style.display = 'none';
-    document.body.style.overflow = '';
-  }
-}
-
-window.addSelectedToOrder = function() {
-  if (selectedItems.length === 0) {
-    showAlert('Please select at least one item.', 'warning');
-    return;
-  }
-
-  const list = el('items-list');
-  if (list) {
-    list.innerHTML = '';
-    selectedItems.forEach(i => addItemRow(i.name, 1, i.price));
-  }
-
-  closeInventoryModal();
-  showAlert(`${selectedItems.length} items added to your order!`, 'success');
-  
-  // Scroll to order form
-  const orderSection = el('order');
-  if (orderSection) {
-    orderSection.scrollIntoView({ behavior: 'smooth' });
-  }
-}
-
-// Initialize inventory modal
-document.addEventListener('DOMContentLoaded', () => {
-  el('closeInventoryModal')?.addEventListener('click', closeInventoryModal);
-  el('addToOrderBtn')?.addEventListener('click', addSelectedToOrder);
-  
-  el('storeInventoryModal')?.addEventListener('click', (e) => {
-    if (e.target.id === 'storeInventoryModal') closeInventoryModal();
-  });
-});
 
 // ---- UI HELPERS ----
 function el(id) { return document.getElementById(id); }
@@ -296,7 +153,7 @@ function renderStores() {
   setTimeout(() => {
     list.innerHTML = STORES.map(s => `
       <div class="col-lg-3 col-md-4 col-6">
-        <div class="sd-store-card sd-store-card-square" onclick="openStoreInventory('${s.id}')" style="--store-color:${s.color};">
+        <div class="sd-store-card sd-store-card-square" onclick="selectStore('${s.id}')" style="--store-color:${s.color};">
           <div class="sd-store-card::before" style="background:${s.color};"></div>
           <style>
             .sd-store-card:hover::before { background: ${s.color}; }
@@ -312,8 +169,8 @@ function renderStores() {
             <div class="sd-store-rating">
               <i class="fas fa-star"></i> ${s.rating}
             </div>
-            <button class="sd-btn sd-btn-primary sd-btn-sm" onclick="event.stopPropagation();openStoreInventory('${s.id}')">
-              View Inventory
+            <button class="sd-btn sd-btn-primary sd-btn-sm" onclick="event.stopPropagation();selectStore('${s.id}')">
+              Order Now
             </button>
           </div>
         </div>
@@ -928,59 +785,6 @@ function initMobileMenu() {
   }
 }
 
-// ---- VIDEO CONTROLS ----
-function initVideoControls() {
-  const video = el('speedyPromoVideo');
-  const playBtn = el('videoPlayBtn');
-  const pauseBtn = el('videoPauseBtn');
-  const stopBtn = el('videoStopBtn');
-  const muteBtn = el('videoMuteBtn');
-  if (!video || !playBtn || !pauseBtn || !stopBtn || !muteBtn) return;
-
-  const FIRST_VISIT_KEY = 'speedyVideoFirstVisit';
-  const isFirstVisit = !localStorage.getItem(FIRST_VISIT_KEY);
-
-  const updateMuteIcon = () => {
-    muteBtn.innerHTML = video.muted ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>';
-  };
-
-  if (isFirstVisit) {
-    // First visit: try to autoplay with sound
-    video.muted = false;
-    video.play().catch(() => {
-      // Browser blocked sound autoplay — fall back to muted so video still plays
-      video.muted = true;
-      video.play().catch(() => {});
-    });
-    // After first full loop ends, go mute for all subsequent loops
-    video.addEventListener('ended', function onFirstEnd() {
-      video.muted = true;
-      updateMuteIcon();
-      video.removeEventListener('ended', onFirstEnd);
-    });
-    localStorage.setItem(FIRST_VISIT_KEY, '1');
-  } else {
-    // Returning visit: autoplay muted (browsers always allow this)
-    video.muted = true;
-    video.play().catch(() => {});
-  }
-
-  updateMuteIcon();
-
-  playBtn.addEventListener('click', () => { video.play(); });
-  pauseBtn.addEventListener('click', () => { video.pause(); });
-  stopBtn.addEventListener('click', () => {
-    video.pause();
-    video.currentTime = 0;
-  });
-  muteBtn.addEventListener('click', () => {
-    video.muted = !video.muted;
-    updateMuteIcon();
-  });
-
-  video.addEventListener('volumechange', updateMuteIcon);
-}
-
 // ---- INIT ----
 document.addEventListener('DOMContentLoaded', () => {
   if (!el('order-form')) return; // only run on customer page
@@ -991,7 +795,6 @@ document.addEventListener('DOMContentLoaded', () => {
   initSmoothScroll();
   initNavScroll();
   initMobileMenu();
-  initVideoControls();
 
   if (typeof BroadcastChannel !== 'undefined') {
     broadcastChannel = new BroadcastChannel(CHANNEL_NAME);
